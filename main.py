@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
-import sqlite3 as sql
+import sys
+import pathlib
 import os.path
 import binascii
-import sys
+import sqlite3 as sql
+
 
 # 'foster_child'?
 individual_role_type = ['unk', 'unk', 'husband', 'wife', 'unk', 'natural_child', 'adopted_child']
@@ -199,11 +201,10 @@ def main():
     if len(args) > 1:
         media_path = args[1]
 
-    db_path_uri = sqlite_db_path
-    print(db_path_uri)
-    con = sql.connect(db_path_uri)
-    cursor = con.cursor()
+    sqlite_db_uri = pathlib.Path(sqlite_db_path).as_uri()
+    con = sql.connect(sqlite_db_uri, uri=True)
     con.row_factory = sql.Row
+    cursor = con.cursor()
 
     # list_all_people(cursor)
     # detail_person(cursor, 16) # 16, 9510

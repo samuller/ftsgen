@@ -202,6 +202,8 @@ def main():
         media_path = args[1]
 
     sqlite_db_uri = pathlib.Path(sqlite_db_path).as_uri()
+    # Open database in read-only mode
+    sqlite_db_uri = sqlite_db_uri + '?mode=ro'
     con = sql.connect(sqlite_db_uri, uri=True)
     con.row_factory = sql.Row
     cursor = con.cursor()

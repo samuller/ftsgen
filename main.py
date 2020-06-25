@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+#
+# TODO:
+# - privacy/living
+#  - imd.is_alive
+#  - imd.privacy_level (ifmd, ffmd, nmd)
+#  - mimd.is_privatized
+
+#
 
 import sys
 import pathlib
@@ -9,6 +17,7 @@ import sqlite3 as sql
 
 # 'foster_child'?
 individual_role_type = ['unk', 'unk', 'husband', 'wife', 'unk', 'natural_child', 'adopted_child']
+is_alive = ['unk', 'unk', 'no', 'yes']
 
 QRY_PERSON_LIST_VIEW = """
 SELECT
@@ -16,7 +25,9 @@ SELECT
     imd.gender,
     ild.first_name,
     ild.last_name,
-    ild.suffix
+    ild.suffix,
+    imd.is_alive,
+    imd.privacy_level
 FROM individual_main_data imd
 JOIN individual_data_set ids
     ON ids.individual_id = imd.individual_id
@@ -38,7 +49,8 @@ SELECT
     --ifmd.date,
     ifld.header,
     ifld.cause_of_death,
-    pld.place
+    pld.place,
+    ifmd.privacy_level
 FROM individual_main_data imd
 LEFT JOIN individual_fact_main_data ifmd
     ON ifmd.individual_id = imd.individual_id
@@ -59,7 +71,8 @@ SELECT DISTINCT
     ffmd.sorted_date,
     -- ffmd.date,
     ffmd.place_id,
-    pld.place
+    pld.place,
+    ffmd.privacy_level
 FROM family_main_data fmd
 LEFT JOIN family_fact_main_data ffmd
     ON ffmd.family_id = fmd.family_id

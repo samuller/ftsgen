@@ -205,8 +205,8 @@ def main():
     # Open database in read-only mode
     sqlite_db_uri = sqlite_db_uri + '?mode=ro'
     con = sql.connect(sqlite_db_uri, uri=True)
-    con.row_factory = sql.Row
     cursor = con.cursor()
+    con.row_factory = sql.Row
 
     # list_all_people(cursor)
     # detail_person(cursor, 16) # 16, 9510

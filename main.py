@@ -124,8 +124,8 @@ def list_all_people(cursor):
     cursor.execute(QRY_ALL_PEOPLE, [])
     result = cursor.fetchall()
     for row in result:
-        id, gender, name, surname, suffix = tuple(row)
-        print(id, gender, name, surname, suffix)
+        # id, gender, name, surname, suffix, alive, privacy = tuple(row)
+        print(row)
 
 
 def list_person(cursor, person_id):

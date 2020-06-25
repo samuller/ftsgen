@@ -19,6 +19,8 @@ import click
 # 'foster_child'?
 individual_role_type = ['unk', 'unk', 'husband', 'wife', 'unk', 'natural_child', 'adopted_child']
 is_alive = ['unk', 'unk', 'no', 'yes']
+item_type = ['unk', 'individual', 'family', 'individual_fact', 'family_fact',
+             'unk', 'unk', 'unk', 'media/image/citation?']
 
 QRY_PERSON_LIST_VIEW = """
 SELECT

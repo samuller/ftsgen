@@ -123,6 +123,22 @@ LEFT JOIN places_lang_data pld
 ORDER BY fmd.family_id, fic.individual_id
 """
 
+QRY_PERSON_FAMILY_IDS = """
+SELECT
+    fic.family_id,
+    fic.individual_role_type
+    -- Fields of possible interest for filtering private data
+    -- ffmd.date,
+    -- ffmd.privacy_level
+FROM family_individual_connection fic
+-- LEFT JOIN family_main_data fmd
+--     ON fmd.family_id = fic.family_id
+-- LEFT JOIN family_fact_main_data ffmd
+--     ON ffmd.family_id = fmd.family_id
+WHERE fic.individual_id = ?
+ORDER BY fic.family_id
+"""
+
 QRY_PERSON_FAMILIES = """
 SELECT
     fmd.family_id,
@@ -316,6 +332,42 @@ def list_person_families(cursor, person_id):
         print(row)
 
 
+def get_person_family_links(cursor, person_id):
+    """Get person's family links.
+
+    Parameters
+    ----------
+    cursor
+        Cursor to an open database connection.
+    person_id
+        Id of person whose family links should be retrieved.
+
+    Returns
+    -------
+    A list of rows containing [family_id, role_in_family, family_type] where:
+    - `role_in_family` is an `individual_role_type`
+    - `family_type` is either 'parent' or 'child' depending on their role in the family
+    """
+    cursor.execute(QRY_PERSON_FAMILY_IDS, (person_id,))
+    result = cursor.fetchall()
+    family_links = []
+    for row in result:
+        row = list(row)
+        if row[1] in [5, 6]:
+            row.append('child')
+        else:
+            row.append('parent')
+        row[1] = individual_role_type[row[1]]
+        family_links.append(row)
+    return family_links
+
+
+def get_all_family_links(cursor):
+    family_links = {}
+    family_links[20] = get_person_family_links(cursor, 20)
+    return family_links
+
+
 def list_person(cursor, person_id):
     cursor.execute(QRY_PERSON_DETAIL, (person_id,))
     print(cursor.fetchone())
@@ -417,6 +469,7 @@ def main(ftb_db_path, media_path):
     # detail_person(cursor, 16) # 16, 9510
     if media_path:
         check_files(cursor, media_path)
+    get_all_family_links(cursor)
     # query(cursor, QRY_MEDIA)
 
 

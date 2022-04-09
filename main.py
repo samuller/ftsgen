@@ -88,7 +88,13 @@ def get_person_family_links(cursor, person_id):
 
 
 def get_all_family_links(cursor):
+    """Get family links for everyone in database."""
+    cursor.execute(QRY_ALL_PERSON_IDS)
+    result = cursor.fetchall()
+    all_person_ids = [row[0] for row in result]
     family_links = {}
+    # for person_id in all_person_ids:
+    #     family_links[person_id] = get_person_family_links(cursor, person_id)
     family_links[20] = get_person_family_links(cursor, 20)
     return family_links
 

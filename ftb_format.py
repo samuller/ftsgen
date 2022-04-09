@@ -57,6 +57,14 @@ family_main_data_status = ['unk', 'engaged', 'divorced', 'married', 'separated',
 # guesses
 family_token_types = { 'MARR': 'married', 'DIV': 'divorced', 'ANUL': 'annulled', 'EVEN': 'event' }
 
+
+QRY_ALL_PERSON_IDS = """
+SELECT
+    imd.individual_id as id
+    -- imd.privacy_level
+FROM individual_main_data imd
+"""
+
 QRY_PERSON_LIST_VIEW = """
 SELECT
     imd.individual_id as id,

@@ -280,7 +280,7 @@ def query(cursor, query):
 @click.argument('ftb_db_path', default=None, nargs=1, type=click.Path(exists=True, dir_okay=False))
 @click.argument('media_path', default=None, nargs=-1, type=click.Path(exists=True, file_okay=False))
 def main(ftb_db_path, media_path):
-    sqlite_db_uri = pathlib.Path(ftb_db_path).as_uri()
+    sqlite_db_uri = pathlib.Path(os.path.realpath(ftb_db_path)).as_uri()
     # Open database in read-only mode
     sqlite_db_uri = sqlite_db_uri + '?mode=ro'
     con = sql.connect(sqlite_db_uri, uri=True)

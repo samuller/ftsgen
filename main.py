@@ -98,6 +98,20 @@ def get_all_family_links(cursor):
     return family_links
 
 
+def get_persons_in_family_links(family_links):
+    """Extract all person ids used in family links object."""
+    return list(family_links.keys())
+
+
+def get_families_in_family_links(family_links):
+    """Extract all family ids used in family links object."""
+    all_families = []
+    for _, families in family_links.items():
+        for family in families:
+            all_families.append(family[0])
+    return all_families
+
+
 def list_person(cursor, person_id):
     cursor.execute(QRY_PERSON_DETAIL, (person_id,))
     print(cursor.fetchone())
@@ -200,6 +214,9 @@ def main(ftb_db_path, media_path):
     if media_path:
         check_files(cursor, media_path)
     links = get_all_family_links(cursor)
+    print('Persons:', get_persons_in_family_links(links))
+    print('Families:', get_families_in_family_links(links))
+
     with open('data/family_links.json', 'w') as outfile:
         json.dump(links, outfile)
     # query(cursor, QRY_MEDIA)

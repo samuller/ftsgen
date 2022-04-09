@@ -346,3 +346,46 @@ def parse_date(binary_date):
     # print(binary.encode('utf8'))
     # print(f"{datestr} => {(4+ord(binary[13]))*100:04}-{ord(binary[11]):02}-{ord(binary[9]):02}")
     return datestr
+
+
+def media_crc32_from_file(filename, init=0):
+    # Calculate CRC32 as int. For hex string use: "%08x" % buf
+    buf = open(filename,'rb').read()
+    buf = (binascii.crc32(buf, init) & 0xffff_ffff)
+    return buf
+
+
+def media_check_files(cursor, path):
+    cursor.execute(QRY_MEDIA, [])
+    result = cursor.fetchall()
+    count_confirmed = 0
+    count_missing = 0
+    count_errors = 0
+    for row in result:
+        id, ftype, size, crc, width, height, ext, title, place = row
+        media_filename = 'P{}_{}_{}.{}'.format(id, width, height, ext)
+        media_path = os.path.join(path, media_filename)
+        print(media_path)
+        if os.path.isfile(media_path):
+            # check file size
+            size = int(size)
+            actual_size = os.path.getsize(media_path)
+            if actual_size != size:
+                count_errors += 1
+                print('Wrong size: {} != {} ({})'.format(
+                    actual_size, size, media_path))
+            # check CRC
+            actual_crc = media_crc32_from_file(media_path)
+            actual_crc = ~actual_crc & 0xffff_ffff
+            crc = int(crc)
+            if actual_crc != crc:
+                count_errors += 1
+                print('Wrong CRC: {} != {} ({})'.format(
+                    actual_crc, crc, media_path))
+            else:
+                count_confirmed += 1
+        else:
+            count_missing += 1
+    print('Confirmed: ' + str(count_confirmed))
+    print('Errors: ' + str(count_errors))
+    print('Missing: ' + str(count_missing))

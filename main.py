@@ -10,7 +10,7 @@
 
 import os
 import re
-import sys
+import json
 import pathlib
 import os.path
 import binascii
@@ -200,7 +200,9 @@ def main(ftb_db_path, media_path):
     # detail_person(cursor, 16) # 16, 9510
     if media_path:
         check_files(cursor, media_path)
-    get_all_family_links(cursor)
+    links = get_all_family_links(cursor)
+    with open('data/family_links.json', 'w') as outfile:
+        json.dump(links, outfile)
     # query(cursor, QRY_MEDIA)
 
 

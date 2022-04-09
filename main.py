@@ -283,9 +283,11 @@ def main(ftb_db_path, media_path):
     sqlite_db_uri = pathlib.Path(os.path.realpath(ftb_db_path)).as_uri()
     # Open database in read-only mode
     sqlite_db_uri = sqlite_db_uri + '?mode=ro'
-    con = sql.connect(sqlite_db_uri, uri=True)
-    cursor = con.cursor()
-    con.row_factory = sql.Row
+    conn = sql.connect(sqlite_db_uri, uri=True)
+    # Ignore unicode decoding errors
+    conn.text_factory = lambda b: b.decode(errors = 'ignore')
+    cursor = conn.cursor()
+    conn.row_factory = sql.Row
 
     # list_all_people(cursor)
     # detail_person(cursor, 16) # 16, 9510

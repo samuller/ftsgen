@@ -237,6 +237,13 @@ WHERE mimd.item_type = 1
 """
 
 
+def row_to_object(row, mapping):
+    object = {}
+    for key, row_idx in mapping.items():
+        object[key] = row[row_idx]
+    return object
+
+
 def role_is_child(role_type):
     # We assume [4, 5, 6] = ['foster_child', 'natural_child', 'adopted_child']
     if role_type in [4, 5, 6]:

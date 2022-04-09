@@ -21,6 +21,11 @@ individual_role_type = ['unk', 'unk', 'husband', 'wife', 'unk', 'natural_child',
 is_alive = ['unk', 'unk', 'no', 'yes']
 item_type = ['unk', 'individual', 'family', 'individual_fact', 'family_fact',
              'unk', 'unk', 'unk', 'media/image/citation?']
+data_language = {0: 'English', 22: 'African'}
+
+family_main_data_status = ['unk', 'engaged', 'divorced', 'married', 'separated', 'widowed', 'life_partners']
+# guesses
+family_token_types = { 'MARR': 'married', 'DIV': 'divorced', 'ANUL': 'annulled', 'EVEN': 'event' }
 
 QRY_PERSON_LIST_VIEW = """
 SELECT

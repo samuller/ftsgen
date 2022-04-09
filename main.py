@@ -236,13 +236,14 @@ def crc32_from_file(filename, init=0):
 def check_files(cursor, path):
     cursor.execute(QRY_MEDIA, [])
     result = cursor.fetchall()
+    count_confirmed = 0
     count_missing = 0
     count_errors = 0
     for row in result:
         id, ftype, size, crc, width, height, ext, title, place = row
         media_filename = 'P{}_{}_{}.{}'.format(id, width, height, ext)
         media_path = os.path.join(path, media_filename)
-
+        print(media_path)
         if os.path.isfile(media_path):
             # check file size
             size = int(size)
@@ -259,8 +260,11 @@ def check_files(cursor, path):
                 count_errors += 1
                 print('Wrong CRC: {} != {} ({})'.format(
                     actual_crc, crc, media_path))
+            else:
+                count_confirmed += 1
         else:
             count_missing += 1
+    print('Confirmed: ' + str(count_confirmed))
     print('Errors: ' + str(count_errors))
     print('Missing: ' + str(count_missing))
 

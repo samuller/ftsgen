@@ -88,6 +88,60 @@ LEFT JOIN places_lang_data pld
 WHERE fid.individual_id = ?
 """
 
+QRY_FAMILY_LIST_VIEW = """
+SELECT DISTINCT
+    fmd.family_id,
+    ffmd.token,
+    fic.individual_id,
+    fic.individual_role_type,
+    ild.first_name,
+    ild.last_name,
+    ffmd.sorted_date,
+    ffmd.date,
+    pld.data_language,
+    pld.place,
+    ffmd.privacy_level
+FROM family_main_data fmd
+LEFT JOIN family_fact_main_data ffmd
+    ON ffmd.family_id = fmd.family_id
+LEFT JOIN family_individual_connection fic
+    ON fic.family_id = fmd.family_id
+LEFT JOIN individual_data_set ids
+    ON ids.individual_id = fic.individual_id
+LEFT JOIN individual_lang_data ild
+    ON ild.individual_data_set_id = ids.individual_data_set_id
+LEFT JOIN places_lang_data pld
+    ON pld.place_lang_data_id = ffmd.place_id
+ORDER BY fmd.family_id, fic.individual_id
+"""
+
+QRY_PERSON_FAMILIES = """
+SELECT
+    fmd.family_id,
+    ffmd.token,
+    fic2.individual_id,
+    fic2.individual_role_type,
+    ild.first_name,
+    ild.last_name,
+    ffmd.sorted_date,
+    ffmd.date,
+    ffmd.privacy_level
+FROM family_individual_connection fic
+LEFT JOIN family_main_data fmd
+    ON fmd.family_id = fic.family_id
+LEFT JOIN family_fact_main_data ffmd
+    ON ffmd.family_id = fmd.family_id
+LEFT JOIN family_individual_connection fic2
+    ON fic2.family_id = fic.family_id
+LEFT JOIN individual_data_set ids
+    ON ids.individual_id = fic2.individual_id
+    AND ids.individual_id != ?
+LEFT JOIN individual_lang_data ild
+    ON ild.individual_data_set_id = ids.individual_data_set_id
+WHERE fic.individual_id = ?
+ORDER BY fmd.family_id
+"""
+
 QRY_FAMILY_MEMBERS = """
 SELECT
     fmd.family_id,
@@ -127,6 +181,14 @@ def list_all_people(cursor):
     result = cursor.fetchall()
     for row in result:
         # id, gender, name, surname, suffix, alive, privacy = tuple(row)
+        print(row)
+
+
+def list_person_families(cursor, person_id):
+    cursor.execute(QRY_PERSON_FAMILIES, (person_id, person_id))
+    result = cursor.fetchall()
+    for row in result:
+        row = list(row)
         print(row)
 
 

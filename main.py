@@ -77,7 +77,7 @@ def get_person_family_links(cursor, person_id):
     family_links = []
     for row in result:
         row = list(row)
-        if row[1] in [5, 6]:
+        if role_is_child(row[1]):
             row.append('child')
         else:
             row.append('parent')

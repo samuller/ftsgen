@@ -12,9 +12,9 @@ import os
 import json
 import pathlib
 import os.path
-import binascii
+import functools
 import sqlite3 as sql
-from collections import Counter, defaultdict
+from collections import defaultdict
 
 import click
 
@@ -57,10 +57,11 @@ def list_person_families(cursor, person_id):
 
 
 def get_person_data(cursor, person_id):
+    """Fetch details for a single person."""
     cursor.execute(QRY_PERSON_DETAIL, (person_id,))
     row = cursor.fetchone()
     obj = row_to_object(row, {
-        'id': 0,
+        'person_id': 0,
         'gender': 1,
         'first_name': 2,
         'last_name': 3,
@@ -69,6 +70,38 @@ def get_person_data(cursor, person_id):
     obj['date_of_birth'] = None
     obj['date_of_death'] = None
     return obj
+
+
+def choose_lang_longest(multi_lang_string):
+    """Choose one string from a multi-lang string by preferring the longest string.
+    
+    Multi-lang strings are just under-score appended to one another."""
+    multi = multi_lang_string.split('_')
+    return functools.reduce(lambda a, b: a if len(a) >= len(b) else b, multi)
+
+
+def get_family_data(cursor, family_id):
+    """Get data on family, including family members with enough detail for display."""
+    cursor.execute(QRY_FAMILY_MEMBER_DETAILS, (family_id,))
+    family_members = cursor.fetchall()
+    family_members = [list(mem) for mem in family_members]
+    for member in family_members:
+        member[1] = individual_role_type[member[1]]
+        member[2] = choose_lang_longest(member[2])
+        member[3] = choose_lang_longest(member[3])
+    for idx in range(len(family_members)):
+        family_members[idx] = row_to_object(family_members[idx], {
+            'person_id': 0,
+            'role_type': 1,
+            'first_name': 2,
+            'last_name': 3,
+        })
+    return {
+        'family_id': family_id,
+        'type': None,
+        'date': None,
+        'members': family_members
+    }
 
 
 def get_person_family_links(cursor, person_id):
@@ -154,7 +187,7 @@ def detail_person(cursor, person_id):
     for family_id in family_ids:
         cursor.execute(QRY_FAMILY_MEMBERS, (family_id,))
         result = cursor.fetchall()
-        print(family_id)
+        print(f'Family {family_id} members:')
         for row in result:
             print(individual_role_type[row[2]], end=": ")
             fam_person_id = row[1]
@@ -199,6 +232,12 @@ def main(ftb_db_path, media_path):
         # print(person_data)
         with open(f'data/people/{person_id}.json', 'w') as outfile:
             json.dump(person_data, outfile)
+    for family_id in families:
+        family_data = get_family_data(cursor, family_id)
+        print(family_data)
+        # with open(f'data/families/{family_id}.json', 'w') as outfile:
+        #     json.dump(family_data, outfile)
+
     # query(cursor, QRY_MEDIA)
 
 

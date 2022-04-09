@@ -3,6 +3,7 @@ Constants, queries and parsing functions specific to the FTB file format.
 
 """
 import re
+import binascii
 
 # 'foster_child'?
 individual_role_type = ['unk', 'unk', 'husband', 'wife', 'unk', 'natural_child', 'adopted_child']
@@ -211,6 +212,25 @@ FROM family_main_data fmd
 LEFT JOIN family_individual_connection fid
     ON fid.family_id = fmd.family_id
 WHERE fmd.family_id = ?
+"""
+
+# We return data in multiple languages appended together with underscores.
+QRY_FAMILY_MEMBER_DETAILS = """
+SELECT
+    fic.individual_id as person_id,
+    fic.individual_role_type as role_type,
+    group_concat(ild.first_name, '_') as first_name,
+    group_concat(ild.last_name, '_') as last_name
+FROM family_main_data fmd
+LEFT JOIN family_individual_connection fic
+    ON fic.family_id = fmd.family_id
+LEFT JOIN individual_data_set ids
+    ON ids.individual_id = fic.individual_id
+LEFT JOIN individual_lang_data ild
+    ON ild.individual_data_set_id = ids.individual_data_set_id
+WHERE fmd.family_id = ?
+GROUP BY fic.individual_id
+ORDER BY fic.individual_id
 """
 
 QRY_MEDIA = """

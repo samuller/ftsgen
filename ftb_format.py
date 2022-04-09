@@ -2,6 +2,7 @@
 Constants, queries and parsing functions specific to the FTB file format.
 
 """
+import re
 
 # 'foster_child'?
 individual_role_type = ['unk', 'unk', 'husband', 'wife', 'unk', 'natural_child', 'adopted_child']

@@ -184,6 +184,122 @@ def list_all_people(cursor):
         print(row)
 
 
+def parse_date(binary_date):
+    date_format = {
+        0: "empty",
+        # '\n\x01': "unk",
+        # '\n\x02': "unk",
+        3: "YYY-only",
+        4: "YYYY-only",
+        # '\n\x05': "unk",
+        # '\n\x06': "unk",
+        7: "about/after YYY",
+        8: "about/after YYYY",
+        9: "fulldate (DD MMM YYY)",  # \t
+        10: "fulldate 1 (DD MMM YYYY)",  # \n
+        11: "fulldate 2 (DD MMM YYYY)",
+        12: "about/after MM YYYY",
+        13: "typo?",  # \r
+        14: "before",
+        15: "about DD MMM YYYY",
+        18: "range (DD MMM YYYY - YYYY)",
+        21: "free text 1",
+        22: "free text 2",
+        23: "free text 3",
+        26: "free text - wrong field?",
+        27: "free text - two dates?",
+    }
+
+    assert binary_date[0] == '\n'
+    date_func_idx = ord(binary_date[1])
+    date_func = None if date_func_idx not in date_format else date_format[date_func_idx]
+    # "-" for valid and "/" for invalid value? (i.e. doesn't parse)
+    find_datestr_end = re.search("\"[-/]", binary_date).start()
+    datestr = binary_date[2:find_datestr_end]
+    binary = binary_date[find_datestr_end:]  #.encode('utf8')
+
+    # every second character is an increasing bit counter
+    for idx, val in enumerate(binary):
+        if idx / 2 > 15:
+            # 16*8 = 128
+            continue
+        if idx % 2 == 0 and idx != 0 and ord(val) < 128:
+            # print(idx, ord(val))
+            assert ord(val) == 8*(idx/2), ord(val)
+
+    assert binary[0] == '"', binary.encode('utf8')
+    # parse_indicator = {'/': 'fail', '-': 'succeed'}[binary[1]]
+    assert ord(binary[2]) == 8, binary.encode('utf8')
+    assert ord(binary[3]) in [0, 1], binary.encode('utf8')
+    assert ord(binary[4]) == 16, binary.encode('utf8')
+    assert ord(binary[5]) in [0, 1, 2, 3], binary.encode('utf8')
+    assert ord(binary[6]) == 24, binary.encode('utf8')
+    assert ord(binary[7]) in [0, 1, 2], binary.encode('utf8')
+    parse_status = ['invalid', None, 'valid'][ord(binary[7])]
+    assert ord(binary[8]) == 32, binary.encode('utf8')  # ' '
+    # parsed day of month: 0 -> unknown
+    assert 0 <= ord(binary[9]) <= 31, binary.encode('utf8')
+    # print(date_func_idx, ord(binary[9]), datestr)
+    assert ord(binary[10]) == 40, binary.encode('utf8')  # '('
+    # parsed month of year: 0 -> unknown
+    # print(date_func, ord(binary[11]), datestr)
+    assert 0 <= ord(binary[11]) <= 12, binary.encode('utf8')
+    assert ord(binary[12]) == 48, binary.encode('utf8')  # '0'
+    # year/century? 10.. = 7/8, 12.. = 9, 13.. = 10, 16.. = 12, 17.. = 15, 18.. = 14
+    # assert ord(binary[13]) in [7, 8, 9, 10, 12, 13, 14, 15, 61], datestr.encode('utf8') + binary.encode('utf8')
+    # assert 0 <= ord(binary[13]) <= 20, binary.encode('utf8')
+    # Binary counter as string: (08@HPX=`hpx
+    assert binary[14:35].encode('utf8') == b"8\x00@\x00H\x00P\x00X=`\x00h\x00p\x00x\x00\x01\x00\x01", binary[14:35].encode('utf8')
+    assert ord(binary[35]) in [0, 1], binary.encode('utf8')
+    assert ord(binary[36]) == 1, binary.encode('utf8')
+    # print(binary[37:].encode('utf8'))
+    # assert binary[37:].encode('utf8') in [
+    #         b'\\', b'[',  b']',  b'N', b'O', b'P', b'Q', b'R', b'S', b'T', b'U', b'V', b'W',
+    #         b'\xc9\x9c\\', b'\xd0\xb8P', b'\xde\xbeP', b'\xcc\xacQ', b'\xe2\xbd\x88Q',
+    #         b'\xd6\x82R', b'\xdc\x9aR',
+    #         b'\xc7\xadS', b'\xc4\x82S',
+    #         b'\xd8\xa9T', b'\xd3\x82T',
+    #         b'\xd4\x9bU', b'\xd4\xadU', b'\xcf\x95U',
+    #         b'\xce\xa7W', b'\xd6\x9eW', b'\xd0\x83Z'
+    #     ], binary[37:].encode('utf8')
+    # 
+
+    # assert 'I' <= binary[-1] <= '_' or ord(binary[-1]) == 3 or \
+    #     '(' <= binary[-1] <= '<' or binary[-1] in ['$', '%', ':', ';', '>', '@', 'F'], binary.encode('utf8')
+
+    # print(binary[37:].encode('utf8'))
+    # assert binary[39] in ['U', 'V', 'R'] , binary.encode('utf8')
+
+    # print(date_func_idx, ord(binary[9]), datestr)
+
+    # if date_func is None:
+    #     print(row[5][0:2].encode('utf8'), date[2:find_datestr_end])
+
+    # print(date_func, datestr, len(datestr))
+    # print(binary.encode('utf8'))
+    # print(f"{datestr} => {(4+ord(binary[13]))*100:04}-{ord(binary[11]):02}-{ord(binary[9]):02}")
+    return datestr
+
+
+def list_all_families(cursor):
+    import re
+    cursor.execute(QRY_FAMILY_LIST_VIEW, [])
+    result = cursor.fetchall()
+    all_values = defaultdict(int)
+
+    for row in result:
+        row = list(row)
+        row[3] = individual_role_type[row[3]]
+        row[7] = parse_date(row[7]) if row[7] else row[7]
+
+        # all_values[binary[-1].encode('utf8')] += 1
+        # if row[3] < len(family_main_data_status):
+        #     row[3] = family_main_data_status[row[3]]
+        print(row)           
+    print(all_values)
+    print(all_values.keys())
+
+
 def list_person_families(cursor, person_id):
     cursor.execute(QRY_PERSON_FAMILIES, (person_id, person_id))
     result = cursor.fetchall()

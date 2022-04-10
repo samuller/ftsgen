@@ -36,8 +36,8 @@ Handlebars.registerHelper('isParent', function (value) {
 
 Handlebars.registerHelper('personLink', function (value) {
     return `<td style="position: relative">
-        <a href="#${this.person_id}"><span class="link-spanner"></span></a>
-        ${this.first_name} ${this.last_name}
+        <a href="#${this.personId}"><span class="link-spanner"></span></a>
+        ${this.firstName} ${this.lastName}
     </td>`;
 });
 
@@ -50,7 +50,7 @@ const tblTemplate = Handlebars.compile(`
         <th>Parents:</th>
         {{#each child}}
         {{#each members}}
-        {{#if (isParent this.role_type)}}
+        {{#if (isParent this.roleType)}}
         {{{personLink this}}}
         {{/if}}
         {{/each}}
@@ -60,7 +60,7 @@ const tblTemplate = Handlebars.compile(`
         <th>Siblings:</th>
         {{#each child}}
         {{#each members}}
-        {{#unless (isParent this.role_type)}}
+        {{#unless (isParent this.roleType)}}
         {{{personLink this}}}
         {{/unless}}
         {{/each}}
@@ -73,7 +73,7 @@ const tblTemplate = Handlebars.compile(`
         <th>Spouses/partners:</th>
         {{#each parent}}
         {{#each members}}
-        {{#if (isParent this.role_type)}}
+        {{#if (isParent this.roleType)}}
         {{{personLink this}}}
         {{/if}}
         {{/each}}
@@ -83,7 +83,7 @@ const tblTemplate = Handlebars.compile(`
         <th>Children:</th>
         {{#each parent}}
         {{#each members}}
-        {{#unless (isParent this.role_type)}}
+        {{#unless (isParent this.roleType)}}
         {{{personLink this}}}
         {{/unless}}
         {{/each}}
@@ -118,7 +118,7 @@ function removeSelfFromMembers(selfId, relationData) {
     Object.keys(relationData).forEach(type => {
         relationData[type].forEach(family => {
             const members = family['members'];
-            const selfIdx = members.map(member => member['person_id']).indexOf(selfId);
+            const selfIdx = members.map(member => member['personId']).indexOf(selfId);
             members.splice(selfIdx, 1);
         });
     });

@@ -61,14 +61,14 @@ def get_person_data(cursor, person_id):
     cursor.execute(QRY_PERSON_DETAIL, (person_id,))
     row = cursor.fetchone()
     obj = row_to_object(row, {
-        'person_id': 0,
+        'personId': 0,
         'gender': 1,
-        'first_name': 2,
-        'last_name': 3,
+        'firstName': 2,
+        'lastName': 3,
         'suffix': 4,
     })
-    obj['date_of_birth'] = None
-    obj['date_of_death'] = None
+    obj['dateOfBirth'] = None
+    obj['dateOfDeath'] = None
     return obj
 
 
@@ -91,13 +91,13 @@ def get_family_data(cursor, family_id):
         member[3] = choose_lang_longest(member[3])
     for idx in range(len(family_members)):
         family_members[idx] = row_to_object(family_members[idx], {
-            'person_id': 0,
-            'role_type': 1,
-            'first_name': 2,
-            'last_name': 3,
+            'personId': 0,
+            'roleType': 1,
+            'firstName': 2,
+            'lastName': 3,
         })
     return {
-        'family_id': family_id,
+        'familyId': family_id,
         'type': None,
         'date': None,
         'members': family_members
@@ -225,7 +225,7 @@ def main(ftb_db_path, media_path):
     print('Persons:', people)
     print('Families:', families)
 
-    with open('data/family_links.json', 'w') as outfile:
+    with open('data/family-links.json', 'w') as outfile:
         json.dump(links, outfile)
     for person_id in people:
         person_data = get_person_data(cursor, person_id)
@@ -235,8 +235,8 @@ def main(ftb_db_path, media_path):
     for family_id in families:
         family_data = get_family_data(cursor, family_id)
         print(family_data)
-        # with open(f'data/families/{family_id}.json', 'w') as outfile:
-        #     json.dump(family_data, outfile)
+        with open(f'data/families/{family_id}.json', 'w') as outfile:
+            json.dump(family_data, outfile)
 
     # query(cursor, QRY_MEDIA)
 

@@ -125,27 +125,40 @@ function removeSelfFromMembers(selfId, relationData) {
 }
 
 
-function htmlRelations(currentPersonId, familyLinks) {
+function htmlRelations(personId, familyLinks) {
     var relationData = loadRelationData(familyLinks);
-    removeSelfFromMembers(currentPersonId, relationData);
+    removeSelfFromMembers(personId, relationData);
     console.log("relationData", relationData);
-    return tblTemplate({ selfId: currentPersonId, relations: relationData });
+    return tblTemplate({ selfId: personId, relations: relationData });
 }
 
 
-function main() {
-    var currentPersonId = 20;
+function loadFamilyTree(personId) {
     readJsonFile("json/family-links.json", function(text){
         var familyLinks = JSON.parse(text);
-        if (familyLinks.hasOwnProperty(currentPersonId)) {
-            console.log(familyLinks[currentPersonId]);
+        if (familyLinks.hasOwnProperty(personId)) {
+            console.log(familyLinks[personId]);
             const relations = document.getElementById("relations");
-            relations.innerHTML = htmlRelations(currentPersonId, familyLinks[currentPersonId]);
+            relations.innerHTML = htmlRelations(personId, familyLinks[personId]);
         } else {
-            console.log('No family data for', currentPersonId);
+            console.log('No family data for', personId);
+            relations.innerHTML = `<span>No family data for ${personId}</span>`;
         }
     });
 }
 
 
+function main() {
+    if (window.location.hash.length == 0) {
+        // Set a default person to start with
+        window.location.hash = '#20';
+    }
+}
+
+
 window.addEventListener('DOMContentLoaded', main, false);
+
+// Detect changes in URL hash and reload family tree data 
+window.addEventListener('hashchange',() => {
+    loadFamilyTree(window.location.hash.substring(1));
+});

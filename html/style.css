@@ -17,19 +17,32 @@ table.relations {
 }
 
 .relations td {
-    padding: 10px;
+    padding: 0;
     border: 1px solid #ccc;
     margin-right: 1.5em;
-    text-align: center;
     /* cursor: pointer; */
 }
 
-.relations td:hover {
+div .person {
+    /* Needed for link-spanner */
+    position: relative;
+
+    padding: 10px;
+    text-align: center;
+}
+
+div .person:hover {
     background-color: lightgray;
 }
 
-div .person {
-    position: relative;
+/* See: https://stackoverflow.com/questions/796087/make-a-div-into-a-link */
+.link-spanner {
+    position: absolute; 
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1;
 }
 
 .node {
@@ -57,15 +70,4 @@ div .person {
 .line::after {
     content: '\2193'; /* &darr; */
     font-size: xx-large;
-}
-
-
-/* See: https://stackoverflow.com/questions/796087/make-a-div-into-a-link */
-.link-spanner {
-    position: absolute; 
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    z-index: 1;
 }

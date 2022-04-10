@@ -223,19 +223,23 @@ def main(ftb_db_path, media_path):
     links = get_all_family_links(cursor)
     people = get_persons_in_family_links(links)
     families = get_families_in_family_links(links)
-    print('Persons:', people)
-    print('Families:', families)
 
     with open('data/family-links.json', 'w') as outfile:
         json.dump(links, outfile)
-    for person_id in people:
+    print(f'Generating {len(people)} persons...')
+    for idx, person_id in enumerate(people):
+        if idx % 100 == 0:
+            print('*' if idx % 1000 == 0 else '.', end="", flush=True)
         person_data = get_person_data(cursor, person_id)
         # print(person_data)
         with open(f'data/people/{person_id}.json', 'w') as outfile:
             json.dump(person_data, outfile)
-    for family_id in families:
+    print(f'Generating {len(families)} families...')
+    for idx, family_id in enumerate(families):
+        if idx % 100 == 0:
+            print('*' if idx % 1000 == 0 else '.', end="", flush=True)
         family_data = get_family_data(cursor, family_id)
-        print(family_data)
+        # print(family_data)
         with open(f'data/families/{family_id}.json', 'w') as outfile:
             json.dump(family_data, outfile)
 

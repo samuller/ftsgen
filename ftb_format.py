@@ -173,7 +173,7 @@ FROM family_individual_connection fic
 --     ON fmd.family_id = fic.family_id
 -- LEFT JOIN family_fact_main_data ffmd
 --     ON ffmd.family_id = fmd.family_id
-WHERE fic.individual_id = ?
+WHERE fic.individual_id = ? AND fic.delete_flag = 0
 ORDER BY fic.family_id
 """
 
@@ -227,9 +227,10 @@ SELECT
 FROM individual_main_data imd
 LEFT JOIN individual_data_set ids
     ON ids.individual_id = imd.individual_id
+    AND ids.delete_flag = 0
 LEFT JOIN individual_lang_data ild
     ON ild.individual_data_set_id = ids.individual_data_set_id
-WHERE person_id = ?
+WHERE person_id = ? AND imd.delete_flag = 0
 GROUP BY person_id
 """
 
@@ -243,15 +244,18 @@ SELECT
     group_concat(ild.last_name, '_') as last_name,
     imd.gender
 FROM family_main_data fmd
-LEFT JOIN family_individual_connection fic
+JOIN family_individual_connection fic
     ON fic.family_id = fmd.family_id
+    AND fic.delete_flag = 0
 LEFT JOIN individual_data_set ids
     ON ids.individual_id = fic.individual_id
+    AND ids.delete_flag = 0
 LEFT JOIN individual_lang_data ild
     ON ild.individual_data_set_id = ids.individual_data_set_id
-WHERE fmd.family_id = ?
 LEFT JOIN individual_main_data imd
     ON imd.individual_id = fic.individual_id
+    AND imd.delete_flag = 0
+WHERE fmd.family_id = ? and fmd.delete_flag = 0
 GROUP BY fic.individual_id
 ORDER BY fic.individual_id
 """

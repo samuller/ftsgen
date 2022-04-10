@@ -77,9 +77,9 @@ SELECT
     imd.is_alive,
     imd.privacy_level
 FROM individual_main_data imd
-JOIN individual_data_set ids
+LEFT JOIN individual_data_set ids
     ON ids.individual_id = imd.individual_id
-JOIN individual_lang_data ild
+LEFT JOIN individual_lang_data ild
     ON ild.individual_data_set_id = ids.individual_data_set_id
 """
 

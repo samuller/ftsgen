@@ -76,6 +76,8 @@ def choose_lang_longest(multi_lang_string):
     """Choose one string from a multi-lang string by preferring the longest string.
     
     Multi-lang strings are just under-score appended to one another."""
+    if multi_lang_string is None:
+        return ''
     multi = multi_lang_string.split('_')
     return functools.reduce(lambda a, b: a if len(a) >= len(b) else b, multi)
 

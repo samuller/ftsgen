@@ -25,13 +25,20 @@ function readJsonFile(fileURL, callback) {
     return rawFile;
 }
 
+/**
+ * Determines if a person had a child role within a family, based on their roleType string.
+ */
+function isChild(roleType) {
+    return roleType.includes("child");
+}
+
 
 Handlebars.registerHelper('json', function(context) {
     return JSON.stringify(context);
 });
 
 Handlebars.registerHelper('isParent', function (value) {
-    return value === 'husband' || value === 'wife';
+    return !isChild(value);
 });
 
 Handlebars.registerHelper('personLink', function (value) {
@@ -100,7 +107,7 @@ function loadRelationData(familyLinks) {
     familyLinks.forEach(link => {
         const familyId = link[0];
         const roleType = link[1];
-        const familyType = link[2];
+        const familyType = isChild(roleType) ? 'child' : 'parent';
         const req = readJsonFile(`json/families/${familyId}.json`);
         if (req.status == 200) {
             var familyData = JSON.parse(req.response);

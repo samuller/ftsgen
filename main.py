@@ -130,10 +130,6 @@ def get_person_family_links(cursor, person_id):
     family_links = []
     for row in result:
         row = list(row)
-        if role_is_child(row[1]):
-            row.append('child')
-        else:
-            row.append('parent')
         row[1] = individual_role_type[row[1]]
         family_links.append(row)
     return family_links

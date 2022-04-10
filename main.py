@@ -58,8 +58,11 @@ def list_person_families(cursor, person_id):
 
 def get_person_data(cursor, person_id):
     """Fetch details for a single person."""
-    cursor.execute(QRY_PERSON_DETAIL, (person_id,))
+    cursor.execute(QRY_PERSON_DETAILS, (person_id,))
     row = cursor.fetchone()
+    row = list(row)
+    row[2] = choose_lang_longest(row[2])
+    row[3] = choose_lang_longest(row[3])
     obj = row_to_object(row, {
         'personId': 0,
         'gender': 1,
@@ -162,7 +165,7 @@ def get_families_in_family_links(family_links):
 
 
 def list_person(cursor, person_id):
-    cursor.execute(QRY_PERSON_DETAIL, (person_id,))
+    cursor.execute(_QRY_PERSON_DETAIL, (person_id,))
     print(cursor.fetchone())
 
 
@@ -234,7 +237,7 @@ def main(ftb_db_path, media_path):
         # print(person_data)
         with open(f'data/people/{person_id}.json', 'w') as outfile:
             json.dump(person_data, outfile)
-    print(f'Generating {len(families)} families...')
+    print(f'\nGenerating {len(families)} families...')
     for idx, family_id in enumerate(families):
         if idx % 100 == 0:
             print('*' if idx % 1000 == 0 else '.', end="", flush=True)

@@ -67,7 +67,7 @@ SELECT
 FROM individual_main_data imd
 """
 
-QRY_PERSON_LIST_VIEW = """
+_QRY_PERSON_LIST_VIEW = """
 SELECT
     imd.individual_id as id,
     imd.gender,
@@ -83,12 +83,13 @@ LEFT JOIN individual_lang_data ild
     ON ild.individual_data_set_id = ids.individual_data_set_id
 """
 
-_QRY_ALL_PEOPLE = QRY_PERSON_LIST_VIEW + """
+_QRY_ALL_PEOPLE = _QRY_PERSON_LIST_VIEW + """
 ORDER BY id
 """
-QRY_PERSON_DETAIL = QRY_PERSON_LIST_VIEW + """
+_QRY_PERSON_DETAIL = _QRY_PERSON_LIST_VIEW + """
 WHERE id = ?
 """
+
 _QRY_PERSON_FACTS = """
 SELECT
     imd.individual_id as id,
@@ -213,6 +214,25 @@ LEFT JOIN family_individual_connection fid
     ON fid.family_id = fmd.family_id
 WHERE fmd.family_id = ?
 """
+
+QRY_PERSON_DETAILS = """
+SELECT
+    imd.individual_id as person_id,
+    imd.gender,
+    group_concat(ild.first_name, '_') as first_name,
+    group_concat(ild.last_name, '_') as last_name,
+    ild.suffix,
+    imd.is_alive,
+    imd.privacy_level
+FROM individual_main_data imd
+LEFT JOIN individual_data_set ids
+    ON ids.individual_id = imd.individual_id
+LEFT JOIN individual_lang_data ild
+    ON ild.individual_data_set_id = ids.individual_data_set_id
+WHERE person_id = ?
+GROUP BY person_id
+"""
+
 
 # We return data in multiple languages appended together with underscores.
 QRY_FAMILY_MEMBER_DETAILS = """

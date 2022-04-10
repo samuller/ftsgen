@@ -43,7 +43,7 @@ Handlebars.registerHelper('personLink', function (value) {
 
 
 const tblTemplate = Handlebars.compile(`
-<h2>Relations of {{person.firstName}} {{person.lastName}} ({{person.personId}})</h2>
+<h2>Relatives of {{person.firstName}} {{person.lastName}} ({{person.personId}})</h2>
 {{#with relations}}
 <table class="relations">
     <tr>

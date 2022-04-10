@@ -151,7 +151,10 @@ function loadFamilyTree(personId) {
 function main() {
     if (window.location.hash.length == 0) {
         // Set a default person to start with
-        window.location.hash = '#20';
+        window.location.hash = '#19';
+    } else {
+        // Perform initial load since it isn't triggered by URL change
+        loadFamilyTree(window.location.hash.substring(1));
     }
 }
 

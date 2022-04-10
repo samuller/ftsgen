@@ -149,7 +149,7 @@ function loadFamilyTree(personId) {
         var familyLinks = JSON.parse(text);
         if (familyLinks.hasOwnProperty(personId)) {
             // console.log('Family links', familyLinks[personId]);
-            const relations = document.getElementById("relations");
+            const relations = document.getElementById("relatives");
             relations.innerHTML = htmlRelations(personData, familyLinks[personId]);
         } else {
             console.log('No family data for', personId);

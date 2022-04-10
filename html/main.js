@@ -59,16 +59,15 @@ const tblTemplate = Handlebars.compile(`
     <tr>
         <th>Siblings:</th>
         {{#each child}}
+        <td colspan="2">
         {{#each members}}
         {{#unless (isParent this.roleType)}}
-        <td>{{{personLink this}}}</td>
+        {{{personLink this}}}
         {{/unless}}
         {{/each}}
+        </td>
         {{/each}}
     </tr>
-</table>
-
-<table class="relations">
     <tr>
         <th>Spouses/partners:</th>
         {{#each parent}}
@@ -82,11 +81,13 @@ const tblTemplate = Handlebars.compile(`
     <tr>
         <th>Children:</th>
         {{#each parent}}
+        <td>
         {{#each members}}
         {{#unless (isParent this.roleType)}}
-        <td>{{{personLink this}}}</td>
+        {{{personLink this}}}
         {{/unless}}
         {{/each}}
+        </td>
         {{/each}}
     </tr>
 </table>

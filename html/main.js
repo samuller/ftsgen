@@ -119,7 +119,9 @@ function removeSelfFromMembers(selfId, relationData) {
         relationData[type].forEach(family => {
             const members = family['members'];
             const selfIdx = members.map(member => member['personId']).indexOf(selfId);
-            members.splice(selfIdx, 1);
+            if (selfIdx != -1) {
+                members.splice(selfIdx, 1);
+            }
         });
     });
 }
@@ -128,16 +130,17 @@ function removeSelfFromMembers(selfId, relationData) {
 function htmlRelations(personId, familyLinks) {
     var relationData = loadRelationData(familyLinks);
     removeSelfFromMembers(personId, relationData);
-    console.log("relationData", relationData);
+    console.log("Family tree data", relationData);
     return tblTemplate({ selfId: personId, relations: relationData });
 }
 
 
 function loadFamilyTree(personId) {
+    personId = parseInt(personId);
     readJsonFile("json/family-links.json", function(text){
         var familyLinks = JSON.parse(text);
         if (familyLinks.hasOwnProperty(personId)) {
-            console.log(familyLinks[personId]);
+            // console.log('Family links', familyLinks[personId]);
             const relations = document.getElementById("relations");
             relations.innerHTML = htmlRelations(personId, familyLinks[personId]);
         } else {

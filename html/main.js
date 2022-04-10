@@ -43,7 +43,7 @@ Handlebars.registerHelper('personLink', function (value) {
 
 
 const tblTemplate = Handlebars.compile(`
-<h2>Relations of {{selfId}}</h2>
+<h2>Relations of {{person.firstName}} {{person.lastName}} ({{person.personId}})</h2>
 {{#with relations}}
 <table class="relations">
     <tr>
@@ -127,22 +127,29 @@ function removeSelfFromMembers(selfId, relationData) {
 }
 
 
-function htmlRelations(personId, familyLinks) {
+function htmlRelations(personData, familyLinks) {
     var relationData = loadRelationData(familyLinks);
-    removeSelfFromMembers(personId, relationData);
+    removeSelfFromMembers(personData['personId'], relationData);
     console.log("Family tree data", relationData);
-    return tblTemplate({ selfId: personId, relations: relationData });
+    return tblTemplate({ person: personData, relations: relationData });
 }
 
 
 function loadFamilyTree(personId) {
     personId = parseInt(personId);
+
+    const req = readJsonFile(`json/people/${personId}.json`);
+    var personData = { 'personId': personId };
+    if (req.status == 200) {
+        personData = JSON.parse(req.response);
+    }
+
     readJsonFile("json/family-links.json", function(text){
         var familyLinks = JSON.parse(text);
         if (familyLinks.hasOwnProperty(personId)) {
             // console.log('Family links', familyLinks[personId]);
             const relations = document.getElementById("relations");
-            relations.innerHTML = htmlRelations(personId, familyLinks[personId]);
+            relations.innerHTML = htmlRelations(personData, familyLinks[personId]);
         } else {
             console.log('No family data for', personId);
             relations.innerHTML = `<span>No family data for ${personId}</span>`;

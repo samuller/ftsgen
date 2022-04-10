@@ -83,13 +83,13 @@ LEFT JOIN individual_lang_data ild
     ON ild.individual_data_set_id = ids.individual_data_set_id
 """
 
-QRY_ALL_PEOPLE = QRY_PERSON_LIST_VIEW + """
+_QRY_ALL_PEOPLE = QRY_PERSON_LIST_VIEW + """
 ORDER BY id
 """
 QRY_PERSON_DETAIL = QRY_PERSON_LIST_VIEW + """
 WHERE id = ?
 """
-QRY_PERSON_FACTS = """
+_QRY_PERSON_FACTS = """
 SELECT
     imd.individual_id as id,
     ifmd.token,
@@ -111,7 +111,7 @@ LEFT JOIN places_lang_data pld
 WHERE id = ?
 """
 
-QRY_FAMILY_LINKS = """
+_QRY_FAMILY_LINKS = """
 SELECT DISTINCT
     fid.individual_id,
     fmd.family_id,
@@ -133,7 +133,7 @@ LEFT JOIN places_lang_data pld
 WHERE fid.individual_id = ?
 """
 
-QRY_FAMILY_LIST_VIEW = """
+_QRY_FAMILY_LIST_VIEW = """
 SELECT DISTINCT
     fmd.family_id,
     ffmd.token,
@@ -176,7 +176,7 @@ WHERE fic.individual_id = ?
 ORDER BY fic.family_id
 """
 
-QRY_PERSON_FAMILIES = """
+_QRY_PERSON_FAMILIES = """
 SELECT
     fmd.family_id,
     ffmd.token,
@@ -203,7 +203,7 @@ WHERE fic.individual_id = ?
 ORDER BY fmd.family_id
 """
 
-QRY_FAMILY_MEMBERS = """
+_QRY_FAMILY_MEMBERS = """
 SELECT
     fmd.family_id,
     fid.individual_id,

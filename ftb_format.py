@@ -240,7 +240,8 @@ SELECT
     fic.individual_id as person_id,
     fic.individual_role_type as role_type,
     group_concat(ild.first_name, '_') as first_name,
-    group_concat(ild.last_name, '_') as last_name
+    group_concat(ild.last_name, '_') as last_name,
+    imd.gender
 FROM family_main_data fmd
 LEFT JOIN family_individual_connection fic
     ON fic.family_id = fmd.family_id
@@ -249,6 +250,8 @@ LEFT JOIN individual_data_set ids
 LEFT JOIN individual_lang_data ild
     ON ild.individual_data_set_id = ids.individual_data_set_id
 WHERE fmd.family_id = ?
+LEFT JOIN individual_main_data imd
+    ON imd.individual_id = fic.individual_id
 GROUP BY fic.individual_id
 ORDER BY fic.individual_id
 """

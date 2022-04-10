@@ -39,6 +39,14 @@ div .person:hover {
     background-color: lightgray;
 }
 
+.male {
+    background-color: lightblue;
+}
+
+.female {
+    background-color: lightpink;
+}
+
 /* See: https://stackoverflow.com/questions/796087/make-a-div-into-a-link */
 .link-spanner {
     position: absolute; 

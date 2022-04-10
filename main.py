@@ -100,6 +100,7 @@ def get_family_data(cursor, family_id):
             'roleType': 1,
             'firstName': 2,
             'lastName': 3,
+            'gender': 4
         })
     return {
         'familyId': family_id,

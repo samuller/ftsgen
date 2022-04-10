@@ -42,7 +42,8 @@ Handlebars.registerHelper('isParent', function (value) {
 });
 
 Handlebars.registerHelper('personLink', function (value) {
-    return `<div class="person">
+    const gender = this.gender == 'M' ? 'male' : this.gender == 'F' ? 'female' : '';
+    return `<div class="person ${gender}">
         <a href="#${this.personId}"><span class="link-spanner"></span></a>
         ${this.firstName} ${this.lastName}
     </div>`;

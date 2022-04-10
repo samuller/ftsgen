@@ -26,6 +26,10 @@ table.relations {
     background-color: lightgray;
 }
 
+div .person {
+    position: relative;
+}
+
 .node {
     display: inline-block;
     min-width: 5em;

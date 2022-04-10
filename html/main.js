@@ -35,10 +35,10 @@ Handlebars.registerHelper('isParent', function (value) {
 });
 
 Handlebars.registerHelper('personLink', function (value) {
-    return `<td style="position: relative">
+    return `<div class="person">
         <a href="#${this.personId}"><span class="link-spanner"></span></a>
         ${this.firstName} ${this.lastName}
-    </td>`;
+    </div>`;
 });
 
 
@@ -51,7 +51,7 @@ const tblTemplate = Handlebars.compile(`
         {{#each child}}
         {{#each members}}
         {{#if (isParent this.roleType)}}
-        {{{personLink this}}}
+        <td>{{{personLink this}}}</td>
         {{/if}}
         {{/each}}
         {{/each}}
@@ -61,7 +61,7 @@ const tblTemplate = Handlebars.compile(`
         {{#each child}}
         {{#each members}}
         {{#unless (isParent this.roleType)}}
-        {{{personLink this}}}
+        <td>{{{personLink this}}}</td>
         {{/unless}}
         {{/each}}
         {{/each}}
@@ -74,7 +74,7 @@ const tblTemplate = Handlebars.compile(`
         {{#each parent}}
         {{#each members}}
         {{#if (isParent this.roleType)}}
-        {{{personLink this}}}
+        <td>{{{personLink this}}}</td>
         {{/if}}
         {{/each}}
         {{/each}}
@@ -84,7 +84,7 @@ const tblTemplate = Handlebars.compile(`
         {{#each parent}}
         {{#each members}}
         {{#unless (isParent this.roleType)}}
-        {{{personLink this}}}
+        <td>{{{personLink this}}}</td>
         {{/unless}}
         {{/each}}
         {{/each}}

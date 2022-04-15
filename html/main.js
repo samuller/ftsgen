@@ -49,9 +49,19 @@ Handlebars.registerHelper('personLink', function (value) {
     </div>`;
 });
 
+Handlebars.registerHelper('gender', function (value) {
+    return value == 'M' ? 'male' : value == 'F' ? 'female' : '';
+});
+
 
 const tblTemplate = Handlebars.compile(`
-<h2>Relatives of {{person.firstName}} {{person.lastName}} ({{person.personId}})</h2>
+<h2>{{person.firstName}} {{person.lastName}} ({{person.personId}})</h2>
+<ul>
+    <li>Gender: {{gender person.gender}}</li>
+    <li>Date of birth: {{person.dateOfBirth}}</li>
+    <li>Date of death: {{person.dateOfDeath}}</li>
+</ul>
+<h3>Relatives</h3>
 {{#with relations}}
 <table class="relations">
     <tr>

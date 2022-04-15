@@ -54,12 +54,32 @@ Handlebars.registerHelper('gender', function (value) {
 });
 
 
+Handlebars.registerHelper('age', function (value) {
+    if (!value.dateOfBirth || !value.dateOfBirth) {
+        return '';
+    }
+    var birth = new Date(value.dateOfBirth);
+    var death = new Date(value.dateOfDeath);
+    if (isNaN(birth) || isNaN(death)) {
+        return '';
+    }
+
+    var ageDifMs = death - birth;
+    var ageDate = new Date(ageDifMs); // miliseconds from epoch
+    var age = Math.abs(ageDate.getUTCFullYear() - 1970);
+    return `(${age})`
+});
+
 const tblTemplate = Handlebars.compile(`
 <h2>{{person.firstName}} {{person.lastName}} ({{person.personId}})</h2>
 <ul>
     <li>Gender: {{gender person.gender}}</li>
+    {{#if person.dateOfBirth}}
     <li>Date of birth: {{person.dateOfBirth}}</li>
-    <li>Date of death: {{person.dateOfDeath}}</li>
+    {{/if}}
+    {{#if person.dateOfDeath}}
+    <li>Date of death: {{person.dateOfDeath}} {{age person}}</li>
+    {{/if}}
 </ul>
 <h3>Relatives</h3>
 {{#with relations}}

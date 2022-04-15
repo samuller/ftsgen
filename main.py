@@ -69,9 +69,9 @@ def sorted_date_to_iso_8601(sorted_date):
     Optional parts of sorted_date will contain zeros."""
     if len(sorted_date) == 8:
         year, month, day = sorted_date[0:4], sorted_date[4:6], sorted_date[6:8]
-        if month == '00':
+        if month in ['00', '99']:
             return f'{year}'
-        if day == '00':
+        if day in ['00', '99']:
             return f'{year}-{month}'
         return f'{year}-{month}-{day}'
     return None

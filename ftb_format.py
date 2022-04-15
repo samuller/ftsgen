@@ -34,7 +34,7 @@ data_language = {
     19: 'Hungarian',
     20: 'Czech',
     21: 'Finnish',
-    22: 'African',
+    22: 'Afrikaans',
     23: 'Slovenian',
     24: 'Slovak',
     25: 'Albanian',

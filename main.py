@@ -21,41 +21,6 @@ import click
 from ftb_format import *
 
 
-def list_all_people(cursor):
-    cursor.execute(_QRY_ALL_PEOPLE, [])
-    result = cursor.fetchall()
-    for row in result:
-        # id, gender, name, surname, suffix, alive, privacy = tuple(row)
-        print(row)
-
-
-def list_all_families(cursor):
-    import re
-    cursor.execute(_QRY_FAMILY_LIST_VIEW, [])
-    result = cursor.fetchall()
-    all_values = defaultdict(int)
-
-    for row in result:
-        row = list(row)
-        row[3] = individual_role_type[row[3]]
-        row[7] = parse_date(row[7]) if row[7] else row[7]
-
-        # all_values[binary[-1].encode('utf8')] += 1
-        # if row[3] < len(family_main_data_status):
-        #     row[3] = family_main_data_status[row[3]]
-        print(row)           
-    print(all_values)
-    print(all_values.keys())
-
-
-def list_person_families(cursor, person_id):
-    cursor.execute(_QRY_PERSON_FAMILIES, (person_id, person_id))
-    result = cursor.fetchall()
-    for row in result:
-        row = list(row)
-        print(row)
-
-
 def get_person_data(cursor, person_id):
     """Fetch details for a single person."""
     cursor.execute(QRY_PERSON_DETAILS, (person_id,))
@@ -159,6 +124,14 @@ def get_families_in_family_links(family_links):
         for family in families:
             all_families.append(family[0])
     return all_families
+
+
+def list_all_people(cursor):
+    cursor.execute(_QRY_ALL_PEOPLE, [])
+    result = cursor.fetchall()
+    for row in result:
+        # id, gender, name, surname, suffix, alive, privacy = tuple(row)
+        print(row)
 
 
 def list_person(cursor, person_id):

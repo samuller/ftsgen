@@ -23,6 +23,7 @@ table.relations {
     /* margin-right: 1.5em; */
     margin: 0;
     /* cursor: pointer; */
+    vertical-align: top;
 }
 
 div .person {

@@ -28,15 +28,17 @@ def get_person_data(cursor, person_id):
     row = list(row)
     row[2] = choose_lang_longest(row[2])
     row[3] = choose_lang_longest(row[3])
+    row[5] = sorted_date_to_iso_8601(choose_date_longest_valid(row[5]))
+    row[6] = sorted_date_to_iso_8601(choose_date_longest_valid(row[6]))
     obj = row_to_object(row, {
         'personId': 0,
         'gender': 1,
         'firstName': 2,
         'lastName': 3,
         'suffix': 4,
+        'dateOfBirth': 5,
+        'dateOfDeath': 6,
     })
-    obj['dateOfBirth'] = None
-    obj['dateOfDeath'] = None
     return obj
 
 
@@ -48,6 +50,31 @@ def choose_lang_longest(multi_lang_string):
         return ''
     multi = multi_lang_string.split('_')
     return functools.reduce(lambda a, b: a if len(a) >= len(b) else b, multi)
+
+
+def choose_date_longest_valid(multi_fact_date):
+    """Choose the longest valid valid from multiple facts.
+    
+    Multi-fact dates are just integers (YYYYMMDD) that are under-score appended to one another."""
+    if multi_fact_date is None:
+        return ''
+    multi = multi_fact_date.split('_')
+    # values longer than 8 are invalid (YYYYMMDD), e.g. 999999999 and -99999999
+    return functools.reduce(lambda a, b: a if len(a) >= len(b) and len(a) <= 8 else b, multi)
+
+
+def sorted_date_to_iso_8601(sorted_date):
+    """Sorted-date's are in YYYYMMDD and we return YYYY-MM-DD format.
+    
+    Optional parts of sorted_date will contain zeros."""
+    if len(sorted_date) == 8:
+        year, month, day = sorted_date[0:4], sorted_date[4:6], sorted_date[6:8]
+        if month == '00':
+            return f'{year}'
+        if day == '00':
+            return f'{year}-{month}'
+        return f'{year}-{month}-{day}'
+    return None
 
 
 def get_family_data(cursor, family_id):

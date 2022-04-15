@@ -168,6 +168,9 @@ SELECT
     group_concat(ild.first_name, '_') as first_name,
     group_concat(ild.last_name, '_') as last_name,
     ild.suffix,
+    --group_concat(ifmd.token, '_') as facts,
+    group_concat(fact_birt.sorted_date, '_') as birth_date,
+    group_concat(fact_deat.sorted_date, '_') as death_date,
     imd.is_alive,
     imd.privacy_level
 FROM individual_main_data imd
@@ -176,6 +179,14 @@ LEFT JOIN individual_data_set ids
     AND ids.delete_flag = 0
 LEFT JOIN individual_lang_data ild
     ON ild.individual_data_set_id = ids.individual_data_set_id
+-- LEFT JOIN individual_fact_main_data ifmd
+--     ON ifmd.individual_id = imd.individual_id
+LEFT JOIN individual_fact_main_data fact_birt
+    ON fact_birt.individual_id = imd.individual_id
+	AND fact_birt.token = 'BIRT'
+LEFT JOIN individual_fact_main_data fact_deat
+    ON fact_deat.individual_id = imd.individual_id
+	AND fact_deat.token = 'DEAT'
 WHERE person_id = ? AND imd.delete_flag = 0
 GROUP BY person_id
 """

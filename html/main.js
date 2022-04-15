@@ -152,6 +152,7 @@ function loadFamilyTree(personId) {
     if (req.status == 200) {
         personData = JSON.parse(req.response);
     }
+    document.title = `Family tree: ${personId}`;
 
     readJsonFile("json/family-links.json", function(text){
         var familyLinks = JSON.parse(text);

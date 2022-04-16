@@ -247,7 +247,6 @@ function loadFamilyTree(personId) {
 function jumpToPerson(value) {
     if (value) {
         window.location.hash = `#${value}`;
-        // selectElement.selectedIndex = -1;
     }
 }
 

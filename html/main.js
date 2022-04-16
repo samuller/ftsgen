@@ -73,7 +73,8 @@ Handlebars.registerHelper('age', function (value) {
     return `(${age})`
 });
 
-const tblTemplate = Handlebars.compile(`
+
+const personTemplate = Handlebars.compile(`
 <h2>{{person.firstName}} {{person.lastName}} ({{person.personId}})</h2>
 <ul>
     <li>Gender: {{gender person.gender}}</li>
@@ -84,6 +85,9 @@ const tblTemplate = Handlebars.compile(`
     <li>Date of death: {{person.dateOfDeath}} {{age person}}</li>
     {{/if}}
 </ul>
+`);
+
+const tblTemplate = Handlebars.compile(`
 <h3>Relatives</h3>
 {{#with relatives}}
 <table class="relatives">
@@ -182,6 +186,11 @@ function removeSelfFromMembers(selfId, relativeData) {
 }
 
 
+function htmlPerson(personData) {
+    return personTemplate({ person: personData });
+}
+
+
 function htmlRelatives(personData, familyLinks) {
     var relativeData = loadRelativeData(familyLinks);
     removeSelfFromMembers(personData['personId'], relativeData);
@@ -193,27 +202,34 @@ function htmlRelatives(personData, familyLinks) {
 function loadFamilyTree(personId) {
     personId = parseInt(personId);
 
+    const personDiv = document.getElementById("person-details");
+    const relativesDiv = document.getElementById("relatives");
+    const footer = document.getElementById("footer");
+
+    document.title = `Family tree: ${personId}`;  
     const req = readJsonFile(divJsonFilenameFromId("json/people/people", personId, personJsonDivSize));
     var personData = { 'personId': personId };
     if (req.status == 200) {
         const jsonData = JSON.parse(req.response);
         personData = jsonData[personId];
+
+        personDiv.innerHTML = htmlPerson(personData);
+    } else {
+        personDiv.innerHTML = `Unknown person: ${personId}`;
     }
-    document.title = `Family tree: ${personId}`;
 
     readJsonFile("json/family-links.json", function(text){
         var familyLinks = JSON.parse(text);
 
-        const relativesDiv = document.getElementById("relatives");
-        if (familyLinks.hasOwnProperty(personId)) {
-            // console.log('Family links', familyLinks[personId]);
-            relativesDiv.innerHTML = htmlRelatives(personData, familyLinks[personId]);
-        } else {
+        if (!familyLinks.hasOwnProperty(personId)) {
             console.log('No family data for', personId);
             relativesDiv.innerHTML = `<span>No family data for ${personId}</span>`;
+            return;
         }
 
-        const footer = document.getElementById("footer");
+        console.log('Family links', familyLinks[personId]);
+        relativesDiv.innerHTML = htmlRelatives(personData, familyLinks[personId]);
+
         if (familyLinks.hasOwnProperty("metadata")) {
             console.log("metadata")
             const metadata = familyLinks["metadata"];

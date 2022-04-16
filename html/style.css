@@ -67,30 +67,3 @@ div .person:hover {
     left: 0;
     z-index: 1;
 }
-
-.node {
-    display: inline-block;
-    min-width: 5em;
-
-    padding: 10px;
-    border: 1px solid #ccc;
-    /* border-radius: 16px; */
-    margin-right: 1.5em;
-    /* margin-bottom: 1.5em; */
-}
-
-.node p {
-    text-align: center;
-    margin: 0;
-}
-
-.line {
-    height: 40px;
-    /* float: left; */
-    /* border-left: 1px solid black; */
-}
-
-.line::after {
-    content: '\2193'; /* &darr; */
-    font-size: xx-large;
-}

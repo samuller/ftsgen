@@ -203,13 +203,6 @@ function loadFamilyTree(personId) {
 
     readJsonFile("json/family-links.json", function(text){
         var familyLinks = JSON.parse(text);
-        const footer = document.getElementById("footer");
-        if (familyLinks.hasOwnProperty("metadata")) {
-            console.log("metadata")
-            const metadata = familyLinks["metadata"];
-            footer.innerHTML = `Generated at ${metadata["generated_at"].replace("T", " ")}`
-                + ` from data updated at ${metadata["source_updated_at"].replace("T", " ")}`;
-        }
 
         const relativesDiv = document.getElementById("relatives");
         if (familyLinks.hasOwnProperty(personId)) {
@@ -218,6 +211,14 @@ function loadFamilyTree(personId) {
         } else {
             console.log('No family data for', personId);
             relativesDiv.innerHTML = `<span>No family data for ${personId}</span>`;
+        }
+
+        const footer = document.getElementById("footer");
+        if (familyLinks.hasOwnProperty("metadata")) {
+            console.log("metadata")
+            const metadata = familyLinks["metadata"];
+            footer.innerHTML = `Generated at ${metadata["generated_at"].replace("T", " ")}`
+                + ` from data updated at ${metadata["source_updated_at"].replace("T", " ")}`;
         }
     });
 }

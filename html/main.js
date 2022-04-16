@@ -2,6 +2,9 @@
  * Use Handlebar templates to generate HTML.
  */
 
+const familyJsonDivSize = 100;
+const personJsonDivSize = 1000;
+
 
 /**
  * Fetches a JSON file and passes it to the callback function.
@@ -133,15 +136,28 @@ const tblTemplate = Handlebars.compile(`
 `);
 
 
+/**
+ * Determine the filename of a divided-JSON file (i.e. a dictionary where the keys are
+ * integer ids that have been split across multiple files).
+ */
+function divJsonFilenameFromId(prepend, id, divisions=1000) {
+    // E.g. files with name "1000-2000" contain ids 1000 to 1999 (inclusive)
+    lower = Math.floor(id / divisions) * divisions;
+    upper = lower + divisions;
+    return `${prepend}-${lower}-${upper}.json`;
+}
+
+
 function loadRelationData(familyLinks) {
     var relationData = {};
     familyLinks.forEach(link => {
         const familyId = link[0];
         const roleType = link[1];
         const familyType = isChild(roleType) ? 'child' : 'parent';
-        const req = readJsonFile(`json/families/${familyId}.json`);
+        const req = readJsonFile(divJsonFilenameFromId("json/families/families", familyId, familyJsonDivSize));
         if (req.status == 200) {
-            var familyData = JSON.parse(req.response);
+            const jsonData = JSON.parse(req.response);
+            const familyData = jsonData[familyId];
             if (relationData.hasOwnProperty(familyType)) {
                 relationData[familyType].push(familyData)
             } else {
@@ -177,10 +193,11 @@ function htmlRelations(personData, familyLinks) {
 function loadFamilyTree(personId) {
     personId = parseInt(personId);
 
-    const req = readJsonFile(`json/people/${personId}.json`);
+    const req = readJsonFile(divJsonFilenameFromId("json/people/people", personId, personJsonDivSize));
     var personData = { 'personId': personId };
     if (req.status == 200) {
-        personData = JSON.parse(req.response);
+        const jsonData = JSON.parse(req.response);
+        personData = jsonData[personId];
     }
     document.title = `Family tree: ${personId}`;
 

@@ -244,6 +244,13 @@ def generate_json(cursor, source_file=None):
         split_people_data["metadata"] = metadata
         with open(f'data/people/people-{rng_str}.json', 'w') as outfile:
             json.dump(split_people_data, outfile)
+    
+    person_search = []
+    for person_id, person in people_data.items():
+        person_title = f'{person["firstName"]} {person["lastName"]}'
+        person_search.append([person_id, person_title])
+    with open(f'data/person-search.json', 'w') as outfile:
+        json.dump(person_search, outfile)
 
     print(f'\nGenerating {len(family_ids)} families...')
     family_data = {}

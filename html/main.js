@@ -206,7 +206,9 @@ function loadFamilyTree(personId) {
     const relativesDiv = document.getElementById("relatives");
     const footer = document.getElementById("footer");
 
-    document.title = `Family tree: ${personId}`;  
+    document.title = `Family tree: ${personId}`;
+    personDiv.classList.add('loading');
+    relativesDiv.classList.add('loading');
     const req = readJsonFile(divJsonFilenameFromId("json/people/people", personId, personJsonDivSize));
     var personData = { 'personId': personId };
     if (req.status == 200) {
@@ -214,6 +216,7 @@ function loadFamilyTree(personId) {
         personData = jsonData[personId];
 
         personDiv.innerHTML = htmlPerson(personData);
+        personDiv.classList.remove('loading');
     } else {
         personDiv.innerHTML = `Unknown person: ${personId}`;
     }
@@ -224,14 +227,15 @@ function loadFamilyTree(personId) {
         if (!familyLinks.hasOwnProperty(personId)) {
             console.log('No family data for', personId);
             relativesDiv.innerHTML = `<span>No family data for ${personId}</span>`;
+            relativesDiv.classList.remove('loading');
             return;
         }
 
         console.log('Family links', familyLinks[personId]);
         relativesDiv.innerHTML = htmlRelatives(personData, familyLinks[personId]);
+        relativesDiv.classList.remove('loading');
 
         if (familyLinks.hasOwnProperty("metadata")) {
-            console.log("metadata")
             const metadata = familyLinks["metadata"];
             footer.innerHTML = `Generated at ${metadata["generated_at"].replace("T", " ")}`
                 + ` from data updated at ${metadata["source_updated_at"].replace("T", " ")}`;

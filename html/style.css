@@ -16,6 +16,10 @@ table.relatives {
     /* border-collapse: collapse; */
 }
 
+.loading {
+    color: lightgray;
+}
+
 .relatives th {
     width: 8em;
     text-align: right;

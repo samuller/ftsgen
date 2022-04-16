@@ -244,7 +244,34 @@ function loadFamilyTree(personId) {
 }
 
 
+function jumpToPerson(selectElement) {
+    var value = selectElement.value;
+    if (value) {
+        window.location.hash = `#${value}`;
+    }
+}
+
+
+function loadQuickJump() {
+    readJsonFile("json/person-search.json", function(text){
+        var personSearch = JSON.parse(text);
+
+        const select = document.getElementById('jump-to-person');
+        personSearch.forEach(person => {
+            select.add(new Option(person[1], person[0]));
+        });
+        new TomSelect("#jump-to-person", {
+            // onChange: function(value){ jumpToPerson(value); }
+        });
+        const header = document.getElementsByTagName("header")[0];
+        header.classList.remove("hidden");
+    });
+}
+
+
 function main() {
+    loadQuickJump();
+
     if (window.location.hash.length == 0) {
         // Set a default person to start with
         window.location.hash = '#19';

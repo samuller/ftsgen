@@ -5,14 +5,23 @@
   <title>Family tree</title>
   <link rel="stylesheet" href="style.css">
   <!-- See about 'defer': https://stackoverflow.com/questions/436411/where-should-i-put-script-tags-in-html-markup-->
-  <script defer type="text/javascript" src="https://cdn.jsdelivr.net/npm/handlebars@4.7.7/dist/handlebars.js"></script>
+  <script defer type="text/javascript" src="https://cdn.jsdelivr.net/npm/handlebars@4.7.7/dist/handlebars.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tom-select@2.0.1/dist/css/tom-select.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.0.1/dist/js/tom-select.base.min.js"></script>
   <script defer type="text/javascript" src="main.js"></script>
 </head>
 <body>
+<header class="hidden"> 
+    <!-- <label for="quick-person">Person:</label> -->
+    <select id="jump-to-person" placeholder="Jump to person" onchange="jumpToPerson(this)">
+        <option value="">Jump to person</option>
+    </select>
+</header>
 
-<div id="person-details"></div>
-
-<div id="relatives"></div>
+<div id="contents">
+    <div id="person-details"></div>
+    <div id="relatives"></div>
+</div>
 
 <footer id="footer"></footer>
 </body>

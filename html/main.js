@@ -244,10 +244,10 @@ function loadFamilyTree(personId) {
 }
 
 
-function jumpToPerson(selectElement) {
-    var value = selectElement.value;
+function jumpToPerson(value) {
     if (value) {
         window.location.hash = `#${value}`;
+        // selectElement.selectedIndex = -1;
     }
 }
 
@@ -261,7 +261,10 @@ function loadQuickJump() {
             select.add(new Option(person[1], person[0]));
         });
         new TomSelect("#jump-to-person", {
-            // onChange: function(value){ jumpToPerson(value); }
+            onChange: function(value){ 
+                jumpToPerson(value);
+                this.clear();
+            }
         });
         const header = document.getElementsByTagName("header")[0];
         header.classList.remove("hidden");

@@ -195,24 +195,7 @@ def detail_person(cursor, person_id):
             list_person(cursor, fam_person_id)
 
 
-@click.command()
-@click.argument('ftb_db_path', default=None, nargs=1, type=click.Path(exists=True, dir_okay=False))
-@click.argument('media_path', default=None, nargs=-1, type=click.Path(exists=True, file_okay=False))
-def main(ftb_db_path, media_path):
-    sqlite_db_uri = pathlib.Path(os.path.realpath(ftb_db_path)).as_uri()
-    # Open database in read-only mode
-    sqlite_db_uri = sqlite_db_uri + '?mode=ro'
-    conn = sql.connect(sqlite_db_uri, uri=True)
-    # Ignore unicode decoding errors
-    conn.text_factory = lambda b: b.decode(errors = 'ignore')
-    cursor = conn.cursor()
-    conn.row_factory = sql.Row
-
-    # list_all_people(cursor)
-    # detail_person(cursor, 19) # 16, 9510
-    # if media_path:
-    #     media_check_files(cursor, media_path[0])
-
+def generate_json(cursor):
     links = get_all_family_links(cursor)
     people_ids = get_persons_in_family_links(links)
     family_ids = get_families_in_family_links(links)
@@ -236,6 +219,26 @@ def main(ftb_db_path, media_path):
         with open(f'data/families/{family_id}.json', 'w') as outfile:
             json.dump(family_data, outfile)
 
+
+@click.command()
+@click.argument('ftb_db_path', default=None, nargs=1, type=click.Path(exists=True, dir_okay=False))
+@click.argument('media_path', default=None, nargs=-1, type=click.Path(exists=True, file_okay=False))
+def main(ftb_db_path, media_path):
+    sqlite_db_uri = pathlib.Path(os.path.realpath(ftb_db_path)).as_uri()
+    # Open database in read-only mode
+    sqlite_db_uri = sqlite_db_uri + '?mode=ro'
+    conn = sql.connect(sqlite_db_uri, uri=True)
+    # Ignore unicode decoding errors
+    conn.text_factory = lambda b: b.decode(errors = 'ignore')
+    cursor = conn.cursor()
+    conn.row_factory = sql.Row
+
+    # list_all_people(cursor)
+    # detail_person(cursor, 19) # 16, 9510
+    # if media_path:
+    #     media_check_files(cursor, media_path[0])
+
+    generate_json(cursor)
 
 
 if __name__ == '__main__':

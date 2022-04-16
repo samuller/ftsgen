@@ -150,10 +150,10 @@ def get_persons_in_family_links(family_links):
 
 def get_families_in_family_links(family_links):
     """Extract all family ids used in family links object."""
-    all_families = []
+    all_families = set()
     for _, families in family_links.items():
         for family in families:
-            all_families.append(family[0])
+            all_families.add(family[0])
     return all_families
 
 

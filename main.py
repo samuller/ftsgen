@@ -195,13 +195,6 @@ def detail_person(cursor, person_id):
             list_person(cursor, fam_person_id)
 
 
-def query(cursor, query):
-    cursor.execute(query, [])
-    result = cursor.fetchall()
-    for row in result:
-        print(row)
-
-
 @click.command()
 @click.argument('ftb_db_path', default=None, nargs=1, type=click.Path(exists=True, dir_okay=False))
 @click.argument('media_path', default=None, nargs=-1, type=click.Path(exists=True, file_okay=False))
@@ -243,7 +236,6 @@ def main(ftb_db_path, media_path):
         with open(f'data/families/{family_id}.json', 'w') as outfile:
             json.dump(family_data, outfile)
 
-    # query(cursor, QRY_MEDIA)
 
 
 if __name__ == '__main__':

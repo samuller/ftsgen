@@ -4,6 +4,12 @@ body {
     font-size: x-large;
 }
 
+footer {
+    font-size: small;
+    margin-top: 10em;
+    text-align: right;
+}
+
 table.relations {
     /* border: 1px solid #ccc; */
     border-spacing: 0;

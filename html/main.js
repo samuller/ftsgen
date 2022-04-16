@@ -182,7 +182,7 @@ function removeSelfFromMembers(selfId, relationData) {
 }
 
 
-function htmlRelations(personData, familyLinks) {
+function htmlRelatives(personData, familyLinks) {
     var relationData = loadRelationData(familyLinks);
     removeSelfFromMembers(personData['personId'], relationData);
     console.log("Family tree data", relationData);
@@ -203,10 +203,18 @@ function loadFamilyTree(personId) {
 
     readJsonFile("json/family-links.json", function(text){
         var familyLinks = JSON.parse(text);
+        const footer = document.getElementById("footer");
+        if (familyLinks.hasOwnProperty("metadata")) {
+            console.log("metadata")
+            const metadata = familyLinks["metadata"];
+            footer.innerHTML = `Generated at ${metadata["generated_at"].replace("T", " ")}`
+                + ` from data updated at ${metadata["source_updated_at"].replace("T", " ")}`;
+        }
+
+        const relations = document.getElementById("relatives");
         if (familyLinks.hasOwnProperty(personId)) {
             // console.log('Family links', familyLinks[personId]);
-            const relations = document.getElementById("relatives");
-            relations.innerHTML = htmlRelations(personData, familyLinks[personId]);
+            relations.innerHTML = htmlRelatives(personData, familyLinks[personId]);
         } else {
             console.log('No family data for', personId);
             relations.innerHTML = `<span>No family data for ${personId}</span>`;

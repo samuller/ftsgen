@@ -238,7 +238,7 @@ function loadFamilyTree(personId) {
         if (familyLinks.hasOwnProperty("metadata")) {
             const metadata = familyLinks["metadata"];
             footer.innerHTML = `Generated at ${metadata["generated_at"].replace("T", " ")}`
-                + ` from data updated at ${metadata["source_updated_at"].replace("T", " ")}`;
+                + `<br/> from data updated at ${metadata["source_updated_at"].replace("T", " ")}`;
         }
     });
 }

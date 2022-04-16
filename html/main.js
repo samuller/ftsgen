@@ -85,8 +85,8 @@ const tblTemplate = Handlebars.compile(`
     {{/if}}
 </ul>
 <h3>Relatives</h3>
-{{#with relations}}
-<table class="relations">
+{{#with relatives}}
+<table class="relatives">
     <tr>
         <th>Parents:</th>
         {{#each child}}
@@ -148,8 +148,8 @@ function divJsonFilenameFromId(prepend, id, divisions=1000) {
 }
 
 
-function loadRelationData(familyLinks) {
-    var relationData = {};
+function loadRelativeData(familyLinks) {
+    var relativeData = {};
     familyLinks.forEach(link => {
         const familyId = link[0];
         const roleType = link[1];
@@ -158,20 +158,20 @@ function loadRelationData(familyLinks) {
         if (req.status == 200) {
             const jsonData = JSON.parse(req.response);
             const familyData = jsonData[familyId];
-            if (relationData.hasOwnProperty(familyType)) {
-                relationData[familyType].push(familyData)
+            if (relativeData.hasOwnProperty(familyType)) {
+                relativeData[familyType].push(familyData)
             } else {
-                relationData[familyType] = [familyData];
+                relativeData[familyType] = [familyData];
             }
         }
     });
-    return relationData;
+    return relativeData;
 }
 
 
-function removeSelfFromMembers(selfId, relationData) {
-    Object.keys(relationData).forEach(type => {
-        relationData[type].forEach(family => {
+function removeSelfFromMembers(selfId, relativeData) {
+    Object.keys(relativeData).forEach(type => {
+        relativeData[type].forEach(family => {
             const members = family['members'];
             const selfIdx = members.map(member => member['personId']).indexOf(selfId);
             if (selfIdx != -1) {
@@ -183,10 +183,10 @@ function removeSelfFromMembers(selfId, relationData) {
 
 
 function htmlRelatives(personData, familyLinks) {
-    var relationData = loadRelationData(familyLinks);
-    removeSelfFromMembers(personData['personId'], relationData);
-    console.log("Family tree data", relationData);
-    return tblTemplate({ person: personData, relations: relationData });
+    var relativeData = loadRelativeData(familyLinks);
+    removeSelfFromMembers(personData['personId'], relativeData);
+    console.log("Family tree data", relativeData);
+    return tblTemplate({ person: personData, relatives: relativeData });
 }
 
 
@@ -211,13 +211,13 @@ function loadFamilyTree(personId) {
                 + ` from data updated at ${metadata["source_updated_at"].replace("T", " ")}`;
         }
 
-        const relations = document.getElementById("relatives");
+        const relativesDiv = document.getElementById("relatives");
         if (familyLinks.hasOwnProperty(personId)) {
             // console.log('Family links', familyLinks[personId]);
-            relations.innerHTML = htmlRelatives(personData, familyLinks[personId]);
+            relativesDiv.innerHTML = htmlRelatives(personData, familyLinks[personId]);
         } else {
             console.log('No family data for', personId);
-            relations.innerHTML = `<span>No family data for ${personId}</span>`;
+            relativesDiv.innerHTML = `<span>No family data for ${personId}</span>`;
         }
     });
 }

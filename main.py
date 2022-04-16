@@ -226,13 +226,18 @@ def split_dict_by_ids(data_dict, divs=1000):
             range = [range[1], range[1] + divs]
 
 
-def generate_json(cursor):
+def generate_json(cursor, source_file=None):
     links = get_all_family_links(cursor)
     people_ids = get_persons_in_family_links(links)
     family_ids = get_families_in_family_links(links)
 
+    metadata = {
+        "generated_at": datetime.now().isoformat(),
+        # "source": source_file
+    }
+
     with open('data/family-links.json', 'w') as outfile:
-        links["metadata"] = {"generated_at": datetime.now().isoformat()}
+        links["metadata"] = metadata
         json.dump(links, outfile)
 
     print(f'Generating {len(people_ids)} persons...')
@@ -245,7 +250,7 @@ def generate_json(cursor):
 
     for rng, split_people_data in split_dict_by_ids(people_data, divs=person_json_div_size):
         rng_str = f"{rng[0]}-{rng[1]}"
-        split_people_data["metadata"] = {"generated_at": datetime.now().isoformat()}
+        split_people_data["metadata"] = metadata
         with open(f'data/people/people-{rng_str}.json', 'w') as outfile:
             json.dump(split_people_data, outfile)
 
@@ -259,7 +264,7 @@ def generate_json(cursor):
     
     for rng, split_family_data in split_dict_by_ids(family_data, divs=family_json_div_size):
         rng_str = f"{rng[0]}-{rng[1]}"
-        split_family_data["metadata"] = {"generated_at": datetime.now().isoformat()}
+        split_family_data["metadata"] = metadata
         with open(f'data/families/families-{rng_str}.json', 'w') as outfile:
             json.dump(split_family_data, outfile)
 
@@ -282,7 +287,7 @@ def main(ftb_db_path, media_path):
     # if media_path:
     #     media_check_files(cursor, media_path[0])
 
-    generate_json(cursor)
+    generate_json(cursor, os.path.basename(ftb_db_path))
 
 
 if __name__ == '__main__':

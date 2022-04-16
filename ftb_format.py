@@ -240,6 +240,8 @@ LEFT JOIN places_lang_data pld
 WHERE mimd.item_type = 1
 """
 
+QRY_LAST_UPDATED = """select last_update from individual_main_data order by last_update desc limit 1"""
+
 
 def row_to_object(row, mapping):
     object = {}

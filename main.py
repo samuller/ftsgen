@@ -158,6 +158,12 @@ def get_families_in_family_links(family_links):
     return all_families
 
 
+def get_last_updated_date(cursor):
+    cursor.execute(QRY_LAST_UPDATED, [])
+    last_updated_timestamp = cursor.fetchone()[0]
+    return datetime.utcfromtimestamp(last_updated_timestamp)
+
+
 def list_all_people(cursor):
     cursor.execute(_QRY_ALL_PEOPLE, [])
     result = cursor.fetchall()
@@ -227,14 +233,17 @@ def split_dict_by_ids(data_dict, divs=1000):
 
 
 def generate_json(cursor, source_file=None):
-    links = get_all_family_links(cursor)
-    people_ids = get_persons_in_family_links(links)
-    family_ids = get_families_in_family_links(links)
-
+    last_updated = get_last_updated_date(cursor)
     metadata = {
         "generated_at": datetime.now().isoformat(),
         # "source": source_file
+        "source_updated_at": last_updated.isoformat(),
     }
+    print("Metadata:", metadata)
+
+    links = get_all_family_links(cursor)
+    people_ids = get_persons_in_family_links(links)
+    family_ids = get_families_in_family_links(links)
 
     with open('data/family-links.json', 'w') as outfile:
         links["metadata"] = metadata

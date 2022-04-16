@@ -235,7 +235,7 @@ def split_dict_by_ids(data_dict, divs=1000):
 def generate_json(cursor, source_file=None):
     last_updated = get_last_updated_date(cursor)
     metadata = {
-        "generated_at": datetime.now().isoformat(),
+        "generated_at": datetime.now().replace(microsecond=0).isoformat(),
         # "source": source_file
         "source_updated_at": last_updated.isoformat(),
     }

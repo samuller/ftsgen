@@ -21,6 +21,10 @@ import click
 from ftb_format import *
 
 
+family_json_div_size = 100
+person_json_div_size = 1000
+
+
 def get_person_data(cursor, person_id):
     """Fetch details for a single person."""
     cursor.execute(QRY_PERSON_DETAILS, (person_id,))
@@ -237,7 +241,7 @@ def generate_json(cursor):
         people_data[person_id] = get_person_data(cursor, person_id)
         # print(people_data[person_id)
 
-    for rng, split_people_data in split_dict_by_ids(people_data):
+    for rng, split_people_data in split_dict_by_ids(people_data, divs=person_json_div_size):
         rng_str = f"{rng[0]}-{rng[1]}"
         with open(f'data/people/people-{rng_str}.json', 'w') as outfile:
             json.dump(split_people_data, outfile)
@@ -250,7 +254,7 @@ def generate_json(cursor):
         family_data[family_id] = get_family_data(cursor, family_id)
         # print(family_data[family_id])
     
-    for rng, split_family_data in split_dict_by_ids(family_data):
+    for rng, split_family_data in split_dict_by_ids(family_data, divs=family_json_div_size):
         rng_str = f"{rng[0]}-{rng[1]}"
         with open(f'data/families/families-{rng_str}.json', 'w') as outfile:
             json.dump(split_family_data, outfile)

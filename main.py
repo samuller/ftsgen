@@ -195,6 +195,32 @@ def detail_person(cursor, person_id):
             list_person(cursor, fam_person_id)
 
 
+def split_dict_by_ids(data_dict, divs=1000):
+    """A generator that splits a dictionary with ids as keys into separate smaller dicts.
+    
+    Parameters
+    ----------
+    data_dict
+        A dictionary with integer ids as keys.
+    divs
+        Divisons, the maximum amount of ids to fit into a smaller dict.
+
+    Yields
+    ------
+    A tuple containing the division range (e.g. [1000, 2000]) and the smaller dictionary.
+    """
+    # smaller dictionary in which some values were split
+    mini_dict = {}
+    # id ranges that smaller dict will contain (end value is non-inclusive)
+    range = [0, divs]
+    for id in sorted(data_dict.keys()):
+        mini_dict[id] = data_dict[id]
+        if int(id) >= range[1]-1:
+            yield range, mini_dict
+            mini_dict = {}
+            range = [range[1], range[1] + divs]
+
+
 def generate_json(cursor):
     links = get_all_family_links(cursor)
     people_ids = get_persons_in_family_links(links)
@@ -210,8 +236,11 @@ def generate_json(cursor):
             print('*' if idx % 1000 == 0 else '.', end="", flush=True)
         people_data[person_id] = get_person_data(cursor, person_id)
         # print(people_data[person_id)
-    with open(f'data/people.json', 'w') as outfile:
-        json.dump(people_data, outfile)
+
+    for rng, split_people_data in split_dict_by_ids(people_data):
+        rng_str = f"{rng[0]}-{rng[1]}"
+        with open(f'data/people/people-{rng_str}.json', 'w') as outfile:
+            json.dump(split_people_data, outfile)
 
     print(f'\nGenerating {len(family_ids)} families...')
     family_data = {}
@@ -220,8 +249,11 @@ def generate_json(cursor):
             print('*' if idx % 1000 == 0 else '.', end="", flush=True)
         family_data[family_id] = get_family_data(cursor, family_id)
         # print(family_data[family_id])
-    with open(f'data/families.json', 'w') as outfile:
-        json.dump(family_data, outfile)
+    
+    for rng, split_family_data in split_dict_by_ids(family_data):
+        rng_str = f"{rng[0]}-{rng[1]}"
+        with open(f'data/families/families-{rng_str}.json', 'w') as outfile:
+            json.dump(split_family_data, outfile)
 
 
 @click.command()

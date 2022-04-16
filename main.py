@@ -165,7 +165,7 @@ def get_last_updated_date(cursor):
 
 
 def list_all_people(cursor):
-    cursor.execute(_QRY_ALL_PEOPLE, [])
+    cursor.execute(EXP_QRY_ALL_PEOPLE, [])
     result = cursor.fetchall()
     for row in result:
         # id, gender, name, surname, suffix, alive, privacy = tuple(row)
@@ -173,7 +173,7 @@ def list_all_people(cursor):
 
 
 def list_person(cursor, person_id):
-    cursor.execute(_QRY_PERSON_DETAIL, (person_id,))
+    cursor.execute(EXP_QRY_PERSON_DETAIL, (person_id,))
     print(cursor.fetchone())
 
 
@@ -182,13 +182,13 @@ def detail_person(cursor, person_id):
     list_person(cursor, person_id)
 
     print('Person: facts')
-    cursor.execute(_QRY_PERSON_FACTS, (person_id,))
+    cursor.execute(EXP_QRY_PERSON_FACTS, (person_id,))
     result = cursor.fetchall()
     for row in result:
         print(row)
 
     print('Person: Family links')
-    cursor.execute(_QRY_FAMILY_LINKS, (person_id,))
+    cursor.execute(EXP_QRY_FAMILY_LINKS, (person_id,))
     result = cursor.fetchall()
     family_ids = []
     for row in result:
@@ -197,7 +197,7 @@ def detail_person(cursor, person_id):
 
     print('Person: Family members')
     for family_id in family_ids:
-        cursor.execute(_QRY_FAMILY_MEMBERS, (family_id,))
+        cursor.execute(EXP_QRY_FAMILY_MEMBERS, (family_id,))
         result = cursor.fetchall()
         print(f'Family {family_id} members:')
         for row in result:

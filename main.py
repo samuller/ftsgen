@@ -214,21 +214,21 @@ def main(ftb_db_path, media_path):
     #     media_check_files(cursor, media_path[0])
 
     links = get_all_family_links(cursor)
-    people = get_persons_in_family_links(links)
-    families = get_families_in_family_links(links)
+    people_ids = get_persons_in_family_links(links)
+    family_ids = get_families_in_family_links(links)
 
     with open('data/family-links.json', 'w') as outfile:
         json.dump(links, outfile)
-    print(f'Generating {len(people)} persons...')
-    for idx, person_id in enumerate(people):
+    print(f'Generating {len(people_ids)} persons...')
+    for idx, person_id in enumerate(people_ids):
         if idx % 100 == 0:
             print('*' if idx % 1000 == 0 else '.', end="", flush=True)
         person_data = get_person_data(cursor, person_id)
         # print(person_data)
         with open(f'data/people/{person_id}.json', 'w') as outfile:
             json.dump(person_data, outfile)
-    print(f'\nGenerating {len(families)} families...')
-    for idx, family_id in enumerate(families):
+    print(f'\nGenerating {len(family_ids)} families...')
+    for idx, family_id in enumerate(family_ids):
         if idx % 100 == 0:
             print('*' if idx % 1000 == 0 else '.', end="", flush=True)
         family_data = get_family_data(cursor, family_id)

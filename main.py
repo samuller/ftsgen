@@ -187,24 +187,6 @@ def detail_person(cursor, person_id):
     for row in result:
         print(row)
 
-    print('Person: Family links')
-    cursor.execute(EXP_QRY_FAMILY_LINKS, (person_id,))
-    result = cursor.fetchall()
-    family_ids = []
-    for row in result:
-        print(row)
-        family_ids.append(row[1])
-
-    print('Person: Family members')
-    for family_id in family_ids:
-        cursor.execute(EXP_QRY_FAMILY_MEMBERS, (family_id,))
-        result = cursor.fetchall()
-        print(f'Family {family_id} members:')
-        for row in result:
-            print(individual_role_type[row[2]], end=": ")
-            fam_person_id = row[1]
-            list_person(cursor, fam_person_id)
-
 
 def split_dict_by_ids(data_dict, divs=1000):
     """A generator that splits a dictionary with ids as keys into separate smaller dicts.

@@ -112,28 +112,6 @@ LEFT JOIN places_lang_data pld
 WHERE id = ?
 """
 
-EXP_QRY_FAMILY_LINKS = """
-SELECT DISTINCT
-    fid.individual_id,
-    fmd.family_id,
-    ffmd.token,
-    ffmd.sorted_date,
-    -- ffmd.date,
-    ffmd.place_id,
-    pld.place,
-    ffmd.privacy_level
-FROM family_main_data fmd
-LEFT JOIN family_fact_main_data ffmd
-    ON ffmd.family_id = fmd.family_id
-LEFT JOIN family_individual_connection fid
-    ON fid.family_id = fmd.family_id
-LEFT JOIN places_main_data pmd
-    ON pmd.place_id = ffmd.place_id
-LEFT JOIN places_lang_data pld
-    ON pld.place_id = pmd.place_id
-WHERE fid.individual_id = ?
-"""
-
 QRY_PERSON_FAMILY_IDS = """
 SELECT
     fic.family_id,
@@ -150,16 +128,6 @@ WHERE fic.individual_id = ? AND fic.delete_flag = 0
 ORDER BY fic.family_id
 """
 
-EXP_QRY_FAMILY_MEMBERS = """
-SELECT
-    fmd.family_id,
-    fid.individual_id,
-    fid.individual_role_type
-FROM family_main_data fmd
-LEFT JOIN family_individual_connection fid
-    ON fid.family_id = fmd.family_id
-WHERE fmd.family_id = ?
-"""
 
 QRY_PERSON_DETAILS = """
 SELECT

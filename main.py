@@ -14,6 +14,7 @@ import pathlib
 import os.path
 import functools
 import sqlite3 as sql
+from datetime import datetime
 from collections import defaultdict
 
 import click
@@ -231,6 +232,7 @@ def generate_json(cursor):
     family_ids = get_families_in_family_links(links)
 
     with open('data/family-links.json', 'w') as outfile:
+        links["metadata"] = {"generated_at": datetime.now().isoformat()}
         json.dump(links, outfile)
 
     print(f'Generating {len(people_ids)} persons...')
@@ -243,6 +245,7 @@ def generate_json(cursor):
 
     for rng, split_people_data in split_dict_by_ids(people_data, divs=person_json_div_size):
         rng_str = f"{rng[0]}-{rng[1]}"
+        split_people_data["metadata"] = {"generated_at": datetime.now().isoformat()}
         with open(f'data/people/people-{rng_str}.json', 'w') as outfile:
             json.dump(split_people_data, outfile)
 
@@ -256,6 +259,7 @@ def generate_json(cursor):
     
     for rng, split_family_data in split_dict_by_ids(family_data, divs=family_json_div_size):
         rng_str = f"{rng[0]}-{rng[1]}"
+        split_family_data["metadata"] = {"generated_at": datetime.now().isoformat()}
         with open(f'data/families/families-{rng_str}.json', 'w') as outfile:
             json.dump(split_family_data, outfile)
 

@@ -202,22 +202,26 @@ def generate_json(cursor):
 
     with open('data/family-links.json', 'w') as outfile:
         json.dump(links, outfile)
+
     print(f'Generating {len(people_ids)} persons...')
+    people_data = {}
     for idx, person_id in enumerate(people_ids):
         if idx % 100 == 0:
             print('*' if idx % 1000 == 0 else '.', end="", flush=True)
-        person_data = get_person_data(cursor, person_id)
-        # print(person_data)
-        with open(f'data/people/{person_id}.json', 'w') as outfile:
-            json.dump(person_data, outfile)
+        people_data[person_id] = get_person_data(cursor, person_id)
+        # print(people_data[person_id)
+    with open(f'data/people.json', 'w') as outfile:
+        json.dump(people_data, outfile)
+
     print(f'\nGenerating {len(family_ids)} families...')
+    family_data = {}
     for idx, family_id in enumerate(family_ids):
         if idx % 100 == 0:
             print('*' if idx % 1000 == 0 else '.', end="", flush=True)
-        family_data = get_family_data(cursor, family_id)
-        # print(family_data)
-        with open(f'data/families/{family_id}.json', 'w') as outfile:
-            json.dump(family_data, outfile)
+        family_data[family_id] = get_family_data(cursor, family_id)
+        # print(family_data[family_id])
+    with open(f'data/families.json', 'w') as outfile:
+        json.dump(family_data, outfile)
 
 
 @click.command()

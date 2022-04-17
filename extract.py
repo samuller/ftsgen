@@ -24,6 +24,7 @@ from ftb_format import *
 
 family_json_div_size = 100
 person_json_div_size = 1000
+fact_json_div_size = 1000
 
 
 def get_person_data(cursor, person_id):
@@ -321,10 +322,11 @@ def generate_json(cursor, source_file=None):
         family_json_div_size, metadata
     )
 
-    facts = get_facts(cursor, people_ids)
-    print(f'\nGenerating {len(facts)} facts...')
-    with open(f'data/facts.json', 'w') as outfile:
-        json.dump(facts, outfile)
+    facts = get_facts(cursor, people_ids)    
+    facts_data = generate_split_json('data/facts/facts-', sorted(facts.keys()),
+        lambda fact_id: facts[fact_id],
+        fact_json_div_size, metadata
+    )
 
 
 @click.command()

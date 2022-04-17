@@ -4,6 +4,7 @@
 
 const familyJsonDivSize = 100;
 const personJsonDivSize = 1000;
+const factsJsonDivSize = 1000;
 
 
 /**
@@ -239,7 +240,7 @@ function processPersonData(personId, personDiv, response) {
     personDiv.innerHTML = htmlPerson(personData);
 
     const factsUl = document.getElementById("person-facts");
-    readJsonFile("json/facts.json", function(text){
+    readJsonFile(divJsonFilenameFromId("json/facts/facts", personId, factsJsonDivSize), function(text){
         const facts = JSON.parse(text);
         const personFacts = facts[personId];
         console.log('Facts', facts[personId]);

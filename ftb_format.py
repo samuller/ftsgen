@@ -139,6 +139,8 @@ SELECT
     --group_concat(ifmd.token, '_') as facts,
     group_concat(fact_birt.sorted_date, '_') as birth_date,
     group_concat(fact_deat.sorted_date, '_') as death_date,
+    fact_birt.place_id as birth_place_id,
+    fact_deat.place_id as death_place_id,
     imd.is_alive,
     imd.privacy_level
 FROM individual_main_data imd

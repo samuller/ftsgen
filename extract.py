@@ -43,6 +43,8 @@ def get_person_data(cursor, person_id):
         'suffix': 4,
         'dateOfBirth': 5,
         'dateOfDeath': 6,
+        'birthPlaceId': 7,
+        'deathPlaceId': 8,
     })
     return obj
 

@@ -79,10 +79,18 @@ const personTemplate = Handlebars.compile(`
 <ul>
     <li>Gender: {{gender person.gender}}</li>
     {{#if person.facts.birth.date}}
-    <li>Date of birth: {{person.facts.birth.date}}</li>
+    <li>Birth: {{person.facts.birth.date}}
+        {{#if person.facts.birth.place}}
+            at {{person.facts.birth.place}}
+        {{/if}}
+    </li>
     {{/if}}
     {{#if person.facts.death.date}}
-    <li>Date of death: {{person.facts.death.date}} {{age person}}</li>
+    <li>Death {{age person}}: {{person.facts.death.date}}
+        {{#if person.facts.death.place}}
+            at {{person.facts.death.place}}
+        {{/if}}
+    </li>
     {{/if}}
 </ul>
 `);

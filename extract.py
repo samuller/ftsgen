@@ -35,6 +35,8 @@ def get_person_data(cursor, person_id):
     row[3] = choose_lang_longest(row[3])
     row[5] = sorted_date_to_iso_8601(choose_date_longest_valid(row[5]))
     row[6] = sorted_date_to_iso_8601(choose_date_longest_valid(row[6]))
+    row[7] = choose_lang_longest(row[7])
+    row[8] = choose_lang_longest(row[8])
     obj = row_to_object(row, {
         'personId': 0,
         'gender': 1,
@@ -45,11 +47,11 @@ def get_person_data(cursor, person_id):
     obj['facts'] = {
         'birth': {
             'date': row[5],
-            'placeId': row[7],
+            'place': row[7],
         },
         'death': {
             'date': row[6],
-            'placeId': row[8],
+            'place': row[8],
         },
     }
     return obj

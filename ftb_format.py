@@ -139,8 +139,8 @@ SELECT
     --group_concat(ifmd.token, '_') as facts,
     group_concat(fact_birt.sorted_date, '_') as birth_date,
     group_concat(fact_deat.sorted_date, '_') as death_date,
-    fact_birt.place_id as birth_place_id,
-    fact_deat.place_id as death_place_id,
+    group_concat(place_birt.place, '_') as birth_place,
+    group_concat(place_deat.place, '_') as death_place,
     imd.is_alive,
     imd.privacy_level
 FROM individual_main_data imd
@@ -157,6 +157,10 @@ LEFT JOIN individual_fact_main_data fact_birt
 LEFT JOIN individual_fact_main_data fact_deat
     ON fact_deat.individual_id = imd.individual_id
 	AND fact_deat.token = 'DEAT'
+LEFT JOIN places_lang_data place_birt
+    ON place_birt.place_id = fact_birt.place_id
+LEFT JOIN places_lang_data place_deat
+    ON place_deat.place_id = fact_deat.place_id
 WHERE person_id = ? AND imd.delete_flag = 0
 GROUP BY person_id
 """

@@ -168,6 +168,38 @@ def get_families_in_family_links(family_links):
     return all_families
 
 
+def get_facts(cursor, person_ids):
+    cursor.execute(QRY_ALL_FACTS, [])
+    result = cursor.fetchall()
+    facts = defaultdict(list)
+    for row in result:
+        if row[0] not in person_ids:
+            continue
+        row = list(row)
+        if row[2] in fact_type:
+            row[2] = fact_type[row[2]]
+        row[4] = sorted_date_to_iso_8601(str(row[4]))
+        # override description with cause_of_death
+        if not row[4] and row[2] == 'DEAT':
+            row[4] = row[7]
+        row[5] = choose_lang_longest(row[5])
+        row[6] = choose_lang_longest(row[6])
+        obj = row_to_object(row, {
+            # 'personId': 0,
+            'factId': 1,
+            'type': 2,
+            'subType': 3,
+            'date': 4,
+            'description': 5,
+            'place': 6
+        })
+        # lack of all this data is likely a mistaken entry?
+        if [row[3], row[4], row[5]] == ['', None, '']:
+            continue
+        facts[row[0]].append(obj)
+    return facts
+
+
 def get_last_updated_date(cursor):
     cursor.execute(QRY_LAST_UPDATED, [])
     last_updated_timestamp = cursor.fetchone()[0]
@@ -275,6 +307,11 @@ def generate_json(cursor, source_file=None):
         split_family_data["metadata"] = metadata
         with open(f'data/families/families-{rng_str}.json', 'w') as outfile:
             json.dump(split_family_data, outfile)
+
+    facts = get_facts(cursor, people_ids)
+    print(f'\nGenerating {len(facts)} facts...')
+    with open(f'data/facts.json', 'w') as outfile:
+        json.dump(facts, outfile)
 
 
 @click.command()

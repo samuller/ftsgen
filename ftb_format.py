@@ -2,6 +2,7 @@
 Constants, queries and parsing functions specific to the FTB file format.
 
 """
+import os
 import re
 import binascii
 
@@ -10,6 +11,12 @@ individual_role_type = ['unk', 'unk', 'husband', 'wife', 'unk', 'natural_child',
 is_alive = ['unk', 'unk', 'no', 'yes']
 item_type = ['unk', 'individual', 'family', 'individual_fact', 'family_fact',
              'unk', 'unk', 'unk', 'media/image/citation?']
+fact_type = {
+    'BIRT': 'birth', 'DEAT': 'death', 'BURI': 'burial', 'OCCU': 'occupation',
+    'RELI': 'religion', 'CHR': 'christening', 'DSCR': 'description',
+    'EMIG': 'emigration', 'EVEN': 'event', 'GRAD': 'graduation',
+    'PROP': 'proposal', 'RESI': 'residence', 'WILL': 'will'
+}
 # Source: https://www.cisowscy.com/kopia-strony-sqlite
 data_language = {
     0: 'English',
@@ -153,10 +160,10 @@ LEFT JOIN individual_lang_data ild
 --     ON ifmd.individual_id = imd.individual_id
 LEFT JOIN individual_fact_main_data fact_birt
     ON fact_birt.individual_id = imd.individual_id
-	AND fact_birt.token = 'BIRT'
+    AND fact_birt.token = 'BIRT'
 LEFT JOIN individual_fact_main_data fact_deat
     ON fact_deat.individual_id = imd.individual_id
-	AND fact_deat.token = 'DEAT'
+    AND fact_deat.token = 'DEAT'
 LEFT JOIN places_lang_data place_birt
     ON place_birt.place_id = fact_birt.place_id
 LEFT JOIN places_lang_data place_deat
@@ -190,6 +197,27 @@ WHERE fmd.family_id = ? and fmd.delete_flag = 0
 GROUP BY fic.individual_id
 ORDER BY fic.individual_id
 """
+
+
+QRY_ALL_FACTS = """
+SELECT DISTINCT
+    ifmd.individual_id as person_id,
+    ifmd.individual_fact_id as fact_id,
+    ifmd.token,
+    ifmd.fact_type,
+    ifmd.sorted_date,
+    group_concat(ifld.header, '_') as header,
+    group_concat(place.place, '_') as place,
+    ifld.cause_of_death
+FROM individual_fact_main_data ifmd
+LEFT JOIN individual_fact_lang_data ifld
+    ON ifld.individual_fact_id = ifmd.individual_fact_id
+LEFT JOIN places_lang_data place
+    ON place.place_id = ifmd.place_id
+WHERE ifmd.delete_flag = 0
+GROUP BY fact_id
+"""
+
 
 QRY_MEDIA = """
 SELECT

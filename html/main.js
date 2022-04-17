@@ -58,11 +58,11 @@ Handlebars.registerHelper('gender', function (value) {
 
 
 Handlebars.registerHelper('age', function (value) {
-    if (!value.dateOfBirth || !value.dateOfBirth) {
+    if (!value.facts.birth.date || !value.facts.death.date) {
         return '';
     }
-    var birth = new Date(value.dateOfBirth);
-    var death = new Date(value.dateOfDeath);
+    var birth = new Date(value.facts.birth.date);
+    var death = new Date(value.facts.death.date);
     if (isNaN(birth) || isNaN(death)) {
         return '';
     }
@@ -78,11 +78,11 @@ const personTemplate = Handlebars.compile(`
 <h2>{{person.firstName}} {{person.lastName}} ({{person.personId}})</h2>
 <ul>
     <li>Gender: {{gender person.gender}}</li>
-    {{#if person.dateOfBirth}}
-    <li>Date of birth: {{person.dateOfBirth}}</li>
+    {{#if person.facts.birth.date}}
+    <li>Date of birth: {{person.facts.birth.date}}</li>
     {{/if}}
-    {{#if person.dateOfDeath}}
-    <li>Date of death: {{person.dateOfDeath}} {{age person}}</li>
+    {{#if person.facts.death.date}}
+    <li>Date of death: {{person.facts.death.date}} {{age person}}</li>
     {{/if}}
 </ul>
 `);

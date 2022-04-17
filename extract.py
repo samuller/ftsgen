@@ -41,11 +41,17 @@ def get_person_data(cursor, person_id):
         'firstName': 2,
         'lastName': 3,
         'suffix': 4,
-        'dateOfBirth': 5,
-        'dateOfDeath': 6,
-        'birthPlaceId': 7,
-        'deathPlaceId': 8,
     })
+    obj['facts'] = {
+        'birth': {
+            'date': row[5],
+            'placeId': row[7],
+        },
+        'death': {
+            'date': row[6],
+            'placeId': row[8],
+        },
+    }
     return obj
 
 
@@ -287,6 +293,7 @@ def main(ftb_db_path, media_path):
     # if media_path:
     #     media_check_files(cursor, media_path[0])
 
+    # print(get_person_data(cursor, 19))
     generate_json(cursor, os.path.basename(ftb_db_path))
 
 

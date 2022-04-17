@@ -13,16 +13,21 @@ const personJsonDivSize = 1000;
  * @param {textCallback} callback - Callback function that handles the response. If not specified
  *      then the request won't happen asynchronously and will only return once completed.
  */
-function readJsonFile(fileURL, callback) {
+function readJsonFile(fileURL, callback, errorCallback=Function()) {
     var rawFile = new XMLHttpRequest();
     rawFile.overrideMimeType("application/json");
     if (callback) {
         rawFile.onreadystatechange = function() {
-            if (rawFile.readyState === 4 && rawFile.status == "200") {
-                callback(rawFile.responseText);
+            if (rawFile.readyState === 4) {
+                if (rawFile.status == "200") {
+                    callback(rawFile.responseText);
+                } else {
+                    errorCallback(rawFile);
+                 }
             }
         }
     }
+    // set to be synchronous if no callback is provided
     rawFile.open("GET", fileURL, !(!callback));
     rawFile.send(null);
     return rawFile;
@@ -231,10 +236,9 @@ function loadFamilyTree(personId) {
     document.title = `Family tree: ${personId}`;
     personDiv.classList.add('loading');
     relativesDiv.classList.add('loading');
-    const req = readJsonFile(divJsonFilenameFromId("json/people/people", personId, personJsonDivSize));
-    var personData = { 'personId': personId };
-    if (req.status == 200) {
-        const jsonData = JSON.parse(req.response);
+    readJsonFile(divJsonFilenameFromId("json/people/people", personId, personJsonDivSize), function(response) {
+        var personData = { 'personId': personId };
+        const jsonData = JSON.parse(response);
         personData = jsonData[personId];
 
         personDiv.innerHTML = htmlPerson(personData);
@@ -247,9 +251,10 @@ function loadFamilyTree(personId) {
             console.log('Facts', facts[personId]);
             factsUl.innerHTML += htmlPersonFacts(personFacts);
         });
-    } else {
+    }, function(response) {
         personDiv.innerHTML = `Unknown person: ${personId}`;
-    }
+        personDiv.classList.remove('loading');
+    });
 
     readJsonFile("json/family-links.json", function(text){
         var familyLinks = JSON.parse(text);

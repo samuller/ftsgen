@@ -256,6 +256,37 @@ def split_dict_by_ids(data_dict, divs=1000):
             range = [range[1], range[1] + divs]
 
 
+def generate_split_json(filename_prefix, id_list, get_data_func, div_size, metadata=None):
+    """Generate a dictionary with ids as keys which is then split and used to generate JSON files.
+    
+    Parameters
+    ----------
+    filename_prefix
+        Folder path and filename prefix.
+    id_list
+        List of ids that will be used as dictionary keys.
+    get_data_func
+        A function to generate the actual data values to be stored.
+    div_size
+        The size of the rough number of the ids per JSON file
+    """
+    print(f'\nGenerating {filename_prefix}xxx.json for {len(id_list)} ids...')
+    data_dict = {}
+    for idx, idval  in enumerate(id_list):
+        if idx % 100 == 0:
+            print('*' if idx % 1000 == 0 else '.', end="", flush=True)
+        data_dict[idval] = get_data_func(idval)
+        # print(data_dict[idval])
+
+    for rng, split_data_dict in split_dict_by_ids(data_dict, divs=div_size):
+        rng_str = f"{rng[0]}-{rng[1]}"
+        split_data_dict["metadata"] = metadata
+        with open(f'{filename_prefix}{rng_str}.json', 'w') as outfile:
+            json.dump(split_data_dict, outfile)
+    
+    return data_dict
+
+
 def generate_json(cursor, source_file=None):
     last_updated = get_last_updated_date(cursor)
     metadata = {
@@ -273,20 +304,11 @@ def generate_json(cursor, source_file=None):
         links["metadata"] = metadata
         json.dump(links, outfile)
 
-    print(f'Generating {len(people_ids)} persons...')
-    people_data = {}
-    for idx, person_id in enumerate(people_ids):
-        if idx % 100 == 0:
-            print('*' if idx % 1000 == 0 else '.', end="", flush=True)
-        people_data[person_id] = get_person_data(cursor, person_id)
-        # print(people_data[person_id)
+    people_data = generate_split_json('data/people/people-', people_ids,
+        lambda person_id: get_person_data(cursor, person_id),
+        person_json_div_size, metadata
+    )
 
-    for rng, split_people_data in split_dict_by_ids(people_data, divs=person_json_div_size):
-        rng_str = f"{rng[0]}-{rng[1]}"
-        split_people_data["metadata"] = metadata
-        with open(f'data/people/people-{rng_str}.json', 'w') as outfile:
-            json.dump(split_people_data, outfile)
-    
     person_search = []
     for person_id, person in people_data.items():
         person_title = f'{person["firstName"]} {person["lastName"]}'
@@ -294,19 +316,10 @@ def generate_json(cursor, source_file=None):
     with open(f'data/person-search.json', 'w') as outfile:
         json.dump(person_search, outfile)
 
-    print(f'\nGenerating {len(family_ids)} families...')
-    family_data = {}
-    for idx, family_id in enumerate(family_ids):
-        if idx % 100 == 0:
-            print('*' if idx % 1000 == 0 else '.', end="", flush=True)
-        family_data[family_id] = get_family_data(cursor, family_id)
-        # print(family_data[family_id])
-    
-    for rng, split_family_data in split_dict_by_ids(family_data, divs=family_json_div_size):
-        rng_str = f"{rng[0]}-{rng[1]}"
-        split_family_data["metadata"] = metadata
-        with open(f'data/families/families-{rng_str}.json', 'w') as outfile:
-            json.dump(split_family_data, outfile)
+    family_data = generate_split_json('data/families/families-', family_ids,
+        lambda family_id: get_family_data(cursor, family_id),
+        family_json_div_size, metadata
+    )
 
     facts = get_facts(cursor, people_ids)
     print(f'\nGenerating {len(facts)} facts...')

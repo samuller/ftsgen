@@ -104,7 +104,7 @@ const personFactsTemplate = Handlebars.compile(`
 `);
 
 
-const tblTemplate = Handlebars.compile(`
+const relativesTemplate = Handlebars.compile(`
 <h3>Relatives</h3>
 {{#with relatives}}
 <table class="relatives">
@@ -213,11 +213,11 @@ function htmlPersonFacts(personFacts) {
 }
 
 
-function htmlRelatives(personData, familyLinks) {
+function htmlRelatives(personId, familyLinks) {
     var relativeData = loadRelativeData(familyLinks);
-    removeSelfFromMembers(personData['personId'], relativeData);
+    removeSelfFromMembers(personId, relativeData);
     console.log("Family tree data", relativeData);
-    return tblTemplate({ person: personData, relatives: relativeData });
+    return relativesTemplate({ relatives: relativeData });
 }
 
 
@@ -262,7 +262,7 @@ function loadFamilyTree(personId) {
         }
 
         console.log('Family links', familyLinks[personId]);
-        relativesDiv.innerHTML = htmlRelatives(personData, familyLinks[personId]);
+        relativesDiv.innerHTML = htmlRelatives(personId, familyLinks[personId]);
         relativesDiv.classList.remove('loading');
 
         if (familyLinks.hasOwnProperty("metadata")) {

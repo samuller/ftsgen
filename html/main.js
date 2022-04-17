@@ -75,25 +75,34 @@ Handlebars.registerHelper('age', function (value) {
 
 
 const personTemplate = Handlebars.compile(`
-<h2>{{person.firstName}} {{person.lastName}} ({{person.personId}})</h2>
-<ul>
+<h2>{{person.firstName}} {{person.lastName}} [{{person.personId}}]</h2>
+<ul id="person-facts">
     <li>Gender: {{gender person.gender}}</li>
-    {{#if person.facts.birth.date}}
-    <li>Birth: {{person.facts.birth.date}}
-        {{#if person.facts.birth.place}}
-            at {{person.facts.birth.place}}
-        {{/if}}
-    </li>
-    {{/if}}
-    {{#if person.facts.death.date}}
-    <li>Death {{age person}}: {{person.facts.death.date}}
-        {{#if person.facts.death.place}}
-            at {{person.facts.death.place}}
-        {{/if}}
-    </li>
-    {{/if}}
 </ul>
 `);
+
+const personFactsTemplate = Handlebars.compile(`
+{{#if facts}}
+{{#each facts}}
+<li><span style="text-transform: capitalize">{{type}}</span>:
+    {{#if description}}
+        {{description}}
+        {{#if date}}
+            on {{date}}
+        {{/if}}
+    {{else}}
+        {{#if date}}
+            {{date}}
+        {{/if}}
+    {{/if}}
+    {{#if place}}
+        at {{place}}
+    {{/if}}
+</li>
+{{/each}}
+{{/if}}
+`);
+
 
 const tblTemplate = Handlebars.compile(`
 <h3>Relatives</h3>
@@ -199,6 +208,11 @@ function htmlPerson(personData) {
 }
 
 
+function htmlPersonFacts(personFacts) {
+    return personFactsTemplate({ facts: personFacts });
+}
+
+
 function htmlRelatives(personData, familyLinks) {
     var relativeData = loadRelativeData(familyLinks);
     removeSelfFromMembers(personData['personId'], relativeData);
@@ -225,6 +239,14 @@ function loadFamilyTree(personId) {
 
         personDiv.innerHTML = htmlPerson(personData);
         personDiv.classList.remove('loading');
+
+        const factsUl = document.getElementById("person-facts");
+        readJsonFile("json/facts.json", function(text){
+            const facts = JSON.parse(text);
+            const personFacts = facts[personId];
+            console.log('Facts', facts[personId]);
+            factsUl.innerHTML += htmlPersonFacts(personFacts);
+        });
     } else {
         personDiv.innerHTML = `Unknown person: ${personId}`;
     }

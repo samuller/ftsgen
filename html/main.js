@@ -116,7 +116,7 @@ const relativesTemplate = Handlebars.compile(`
 <table class="relatives">
     <tr>
         <th>Parents:</th>
-        {{#each child}}
+        {{#each ischild}}
         {{#each members}}
         {{#if (isParent this.roleType)}}
         <td>{{{personLink this}}}</td>
@@ -126,7 +126,7 @@ const relativesTemplate = Handlebars.compile(`
     </tr>
     <tr>
         <th>Siblings:</th>
-        {{#each child}}
+        {{#each ischild}}
         <td colspan="2">
         {{#each members}}
         {{#unless (isParent this.roleType)}}
@@ -138,7 +138,7 @@ const relativesTemplate = Handlebars.compile(`
     </tr>
     <tr>
         <th>Spouses/partners:</th>
-        {{#each parent}}
+        {{#each isparent}}
         {{#each members}}
         {{#if (isParent this.roleType)}}
         <td>{{{personLink this}}}</td>
@@ -148,7 +148,7 @@ const relativesTemplate = Handlebars.compile(`
     </tr>
     <tr>
         <th>Children:</th>
-        {{#each parent}}
+        {{#each isparent}}
         <td>
         {{#each members}}
         {{#unless (isParent this.roleType)}}
@@ -180,7 +180,7 @@ function loadRelativeData(familyLinks) {
     familyLinks.forEach(link => {
         const familyId = link[0];
         const roleType = link[1];
-        const familyType = isChild(roleType) ? 'child' : 'parent';
+        const familyType = isChild(roleType) ? 'ischild' : 'isparent';
         const req = readJsonFile(divJsonFilenameFromId("json/families/families", familyId, familyJsonDivSize));
         if (req.status == 200) {
             const jsonData = JSON.parse(req.response);
@@ -192,6 +192,12 @@ function loadRelativeData(familyLinks) {
             }
         }
     });
+    // sort parent with husband first (without affecting child order?)
+    if (relativeData.hasOwnProperty('ischild')) {
+        relativeData['ischild'].forEach(family => {
+            family.members.sort((m1, m2) => m1.roleType > m2.roleType);
+        });
+    }
     return relativeData;
 }
 

@@ -15,7 +15,8 @@ fact_type = {
     'BIRT': 'birth', 'DEAT': 'death', 'BURI': 'burial', 'OCCU': 'occupation',
     'RELI': 'religion', 'CHR': 'christening', 'DSCR': 'description',
     'EMIG': 'emigration', 'EVEN': 'event', 'GRAD': 'graduation',
-    'PROP': 'proposal', 'RESI': 'residence', 'WILL': 'will'
+    'PROP': 'proposal', 'RESI': 'residence', 'WILL': 'will',
+    'CHRA': 'christening (adult)'
 }
 # Source: https://www.cisowscy.com/kopia-strony-sqlite
 data_language = {

@@ -90,3 +90,76 @@ div .person:hover {
     left: 0;
     z-index: 1;
 }
+
+
+/**
+ * CSS for trees.
+ */
+
+svg path {
+	shape-rendering: crispedges;
+}
+
+.Treant a {
+    text-decoration: none;
+}
+
+.tree-dark-box {
+    padding: 2px;
+    border-radius: 3px;
+    background-color: #262626;
+	border: 1px solid black;
+    width: 200px;
+	text-align: center;
+    color: #ffffff;
+}
+
+.tree-dark-box:hover {
+	background-color: lightgray;
+}
+
+.node-name {
+    margin: 8px;
+}
+
+.tree-rel-link {
+	background-color: #665B57;
+	color: black;
+	width: 5px;
+	height: 5px;
+	border: none;
+}
+
+.tree-rel-link .node-name {
+	position: absolute;
+	top: -35px; /* +5 */
+	left: 4px;
+
+	z-index: -1;
+
+	width: 1px;
+	height: 80px;
+
+	padding: 0;
+	margin: 0;
+
+	background-color: black;
+}
+
+.tree-main-person {
+	color: black;
+	background-color: white;
+	border-color: black;
+}
+
+.tree-male {
+	color: black;
+	background-color: lightblue;
+	border-color: lightblue;
+}
+
+.tree-female {
+	color: black;
+	background-color: lightpink;
+	border-color: lightpink;
+}

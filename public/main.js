@@ -113,7 +113,18 @@ function processFamilyLinks(personId, relativesDiv, response) {
 
     console.log('Family links', familyLinks[personId]);
     var relativeData = loadRelativeData(familyLinks[personId]);
-    relativesDiv.innerHTML = htmlRelatives(personId, relativeData);
+
+    // show relatives in html only
+    // relativesDiv.innerHTML = htmlRelatives(personId, relativeData);
+
+    // show relative trees
+    relativesDiv.innerHTML = `
+    <h3>Parents/siblings</h3>
+    <div id="parent-tree" style="width: 500px; height: 360px"></div>
+    <h3>Spouses/partners/children</h3>
+    <div id="spouse-tree"></div>
+    `;
+    treeRelatives(personId, relativeData);
 };
 
 

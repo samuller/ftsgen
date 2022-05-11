@@ -10,13 +10,14 @@ function familyMemberToTreantNode(member) {
 }
 
 
-function treeConfigRelatives(personId, husband, wife, children, wife_only=false) {
+function treeConfigRelatives(personId, husband, wife, children, spouse_only=false) {
     var nodes = [];
     const wifeNode = familyMemberToTreantNode(wife);
+    const husbandNode = familyMemberToTreantNode(husband);
     const childrenNode = {
         HTMLclass: "tree-rel-link",
         text: { name: "" },
-        stackChildren: wife_only,
+        stackChildren: spouse_only,
         childrenDropLevel: 1,
         children: children.length == 0 ? undefined : children.map((child) => {
             var newNode = familyMemberToTreantNode(child);
@@ -27,13 +28,14 @@ function treeConfigRelatives(personId, husband, wife, children, wife_only=false)
         })
     };
 
-    if (wife_only) {
+    if (spouse_only) {
+        const spouseNode = husband.personId == personId ? wifeNode : husbandNode;
         nodes.push({
             ...childrenNode,
-            ...wifeNode,
+            ...spouseNode,
         });
     } else {
-        nodes.push(familyMemberToTreantNode(husband));
+        nodes.push(husbandNode);
         nodes.push(childrenNode);
         nodes.push(wifeNode);
     }
@@ -41,7 +43,7 @@ function treeConfigRelatives(personId, husband, wife, children, wife_only=false)
     const chart_config = {
         chart: {
             container: "#parent-tree",
-            rootOrientation: wife_only ? "NORTH" : "WEST",
+            rootOrientation: spouse_only ? "NORTH" : "WEST",
             connectors: {
                 type: "step"
             },
@@ -73,6 +75,6 @@ function treeRelatives(personId, relativeData, familyType='ischild') {
         wife = mainFamily.members.find(el => el.roleType == "wife");
     }
     const chart_config = treeConfigRelatives(personId, husband, wife, children,
-        stack=(familyType == 'isparent'));
+        spouse_only=(familyType == 'isparent'));
     return [chart_config, children.length];
 }

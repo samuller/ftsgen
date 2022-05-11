@@ -8,14 +8,9 @@ function familyMemberToTreantNode(member) {
 }
 
 
-function treeRelatives(personId, relativeData) {
-    // ignore other parent families (e.g. later adoptions, etc.)
-    var mainFamily = relativeData.ischild[0];
-
+function treeConfigRelatives(personId, husband, wife, children) {
     var nodes = [];
-    const husband = mainFamily.members.find(el => el.roleType == "husband");
     nodes.push(familyMemberToTreantNode(husband));
-    const children = mainFamily.members.filter(el => el.roleType.endsWith("child"));
     nodes.push({
         HTMLclass: "tree-rel-link",
         text: { name: "" },
@@ -28,9 +23,7 @@ function treeRelatives(personId, relativeData) {
             return newNode;
         })
     });
-    const wife = mainFamily.members.find(el => el.roleType == "wife");
     nodes.push(familyMemberToTreantNode(wife));
-    console.log('tree-nodes', nodes, relativeData)
 
     const chart_config = {
         chart: {
@@ -49,8 +42,16 @@ function treeRelatives(personId, relativeData) {
             children: nodes,
         }
     };
-    var chart = new Treant(
-		chart_config,
-		function() { console.log( 'Tree Loaded' ) }
-	);
+    return chart_config;
+}
+
+
+function treeRelatives(personId, relativeData) {
+    // ignore other parent families (e.g. later adoptions, etc.)
+    var mainFamily = relativeData.ischild[0];
+    const husband = mainFamily.members.find(el => el.roleType == "husband");
+    const children = mainFamily.members.filter(el => el.roleType.endsWith("child"));
+    const wife = mainFamily.members.find(el => el.roleType == "wife");
+    const chart_config = treeConfigRelatives(personId, husband, wife, children);
+    return [chart_config, children.length];
 }

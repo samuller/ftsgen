@@ -118,13 +118,15 @@ function processFamilyLinks(personId, relativesDiv, response) {
     // relativesDiv.innerHTML = htmlRelatives(personId, relativeData);
 
     // show relative trees
+    const [chart_config, child_count] = treeRelatives(personId, relativeData);
+    var height = 40 + 90*child_count;
     relativesDiv.innerHTML = `
     <h3>Parents/siblings</h3>
-    <div id="parent-tree" style="width: 500px; height: 360px"></div>
+    <div id="parent-tree" style="width: 500px; height: ${height}px"></div>
     <h3>Spouses/partners/children</h3>
     <div id="spouse-tree"></div>
     `;
-    treeRelatives(personId, relativeData);
+    const chart = new Treant(chart_config);
 };
 
 

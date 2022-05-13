@@ -96,6 +96,21 @@ function processPersonData(personId, personDiv, response) {
 }
 
 
+function treeRelativesDim(personId, relativeData, familyType='ischild') {
+    const [chart_config, child_count] = treeRelatives(personId, relativeData, familyType);
+
+    var dimensions = [0, 0];
+    if (familyType == 'ischild') {
+        const height = 40 + 85*Math.max(child_count, 2);
+        dimensions = [500, height];
+    } else {
+        const height = 150 + 85*Math.max(child_count, 2);
+        dimensions = [375, height];
+    }
+    return [chart_config, dimensions];
+}
+
+
 function processFamilyLinks(personId, relativesDiv, response) {
     var familyLinks = JSON.parse(response);
     // take metadata and show in footer
@@ -118,15 +133,13 @@ function processFamilyLinks(personId, relativesDiv, response) {
     // relativesDiv.innerHTML = htmlRelatives(personId, relativeData);
 
     // show relative trees
-    const [chart_config, child_count] = treeRelatives(personId, relativeData, 'ischild');
-    const [chart_config2, child_count2] = treeRelatives(personId, relativeData, 'isparent');
-    var height = 40 + 85*Math.max(child_count, 2);
-    var height2 = 150 + 85*Math.max(child_count2, 2);
+    const [chart_config, dimensions] = treeRelativesDim(personId, relativeData, 'ischild');
+    const [chart_config2, dimensions2] = treeRelativesDim(personId, relativeData, 'isparent');
     relativesDiv.innerHTML = `
-    <h3>Parents/siblings</h3>
-    <div id="parent-tree" style="width: 500px; height: ${height}px"></div>
-    <h3>Spouses/partners/children</h3>
-    <div id="spouse-tree" style="width: 375px; height: ${height2}px"></div>
+    <h3>Parents & siblings</h3>
+    <div id="parent-tree" style="width: ${dimensions[0]}px; height: ${dimensions[1]}px"></div>
+    <h3>Spouses/partners & children</h3>
+    <div id="spouse-tree" style="width: ${dimensions2[0]}px; height: ${dimensions2[1]}px"></div>
     `;
     const chart = new Treant(chart_config);
 

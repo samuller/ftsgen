@@ -99,13 +99,21 @@ function processPersonData(personId, personDiv, response) {
 function treeRelativesDim(personId, relativeData, familyType='ischild') {
     const [chart_config, child_count] = treeRelatives(personId, relativeData, familyType);
 
+    const blockWidth = 200;
+    const blockHeight = 40 + 18*1; // 18*(extraLines)
+    const levelSeparation = 30;
+    const subTeeSeparation = 30;
     var dimensions = [0, 0];
     if (familyType == 'ischild') {
-        const height = 40 + 85*Math.max(child_count, 2);
-        dimensions = [500, height];
+        const height = Math.max(
+            2*blockHeight + 2*levelSeparation,
+            (blockHeight + levelSeparation)*child_count
+        );
+        dimensions = [3*levelSeparation + 2*blockWidth, height];
     } else {
-        const height = 150 + 85*Math.max(child_count, 2);
-        dimensions = [375, height];
+        const height = blockHeight + 2*levelSeparation
+            + (blockHeight + levelSeparation)*child_count;
+        dimensions = [subTeeSeparation + 1.5*blockWidth, height];
     }
     return [chart_config, dimensions];
 }

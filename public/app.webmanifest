@@ -1,0 +1,13 @@
+{
+    "name": "Family - JIMuller",
+    "short_name": "Family-JIM",
+    "description": "Family tree of J.I. Muller.",
+    "icons": [
+      {
+        "src": "family-tree.png",
+        "sizes": "48x48",
+        "type": "image/png"
+      }
+    ],
+    "display": "minimal-ui"
+}

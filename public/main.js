@@ -119,7 +119,7 @@ function treeRelativesDim(personId, relativeData, familyType='ischild') {
 }
 
 
-function processFamilyLinks(personId, relativesDiv, response) {
+function processFamilyLinks(personId, relativesDiv, response, htmlOnly=true) {
     var familyLinks = JSON.parse(response);
     // take metadata and show in footer
     if (familyLinks.hasOwnProperty("metadata")) {
@@ -138,9 +138,12 @@ function processFamilyLinks(personId, relativesDiv, response) {
     var relativeData = loadRelativeData(familyLinks[personId]);
 
     // show relatives in html only
-    // relativesDiv.innerHTML = htmlRelatives(personId, relativeData);
+    if (htmlOnly) {
+        relativesDiv.innerHTML = htmlRelatives(personId, relativeData);
+        return;
+    }
 
-    // show relative trees
+    // show relatives in SVG trees
     const [chart_config, dimensions] = treeRelativesDim(personId, relativeData, 'ischild');
     const [chart_config2, dimensions2] = treeRelativesDim(personId, relativeData, 'isparent');
     relativesDiv.innerHTML = `

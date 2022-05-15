@@ -9,5 +9,6 @@
         "type": "image/png"
       }
     ],
-    "display": "minimal-ui"
+    "display": "minimal-ui",
+    "start_url": "/"
 }

@@ -288,6 +288,44 @@ def generate_split_json(filename_prefix, id_list, get_data_func, div_size, metad
     return data_dict
 
 
+def get_direct_antecedents(person_id, family_links: Dict[int, List], families: Dict[int, Set], depth=1):
+    # get "birth" family
+    parent_family_ids = [link[0] for link in family_links[person_id] if "child" in link[1]]
+    if len(parent_family_ids) != 1:
+        return set()
+    # get parents of family
+    parents = {(depth, pid) for pid, role in families[parent_family_ids[0]] if not "child" in role}
+    # parents = set()
+    # for pid, links in family_links.items():
+    #     links = [link for link in links if link[0] == parent_family_ids[0] and not "child" in link[1]]
+    #     if len(links) > 0:
+    #         parents.add(pid)
+
+    # recurse to get further antecedents
+    grand_parents = set()
+    for parent in parents:
+        grand_parents = grand_parents.union(get_direct_antecedents(parent[1], family_links, families, depth+1))
+
+    antecedents = parents.union(grand_parents)
+    return antecedents
+
+
+def get_antecedents(focus_person_id, family_links) -> Dict[int, List[int]]:
+    """Antecedents are predecessors in a family line (for which the focus person is a descendant)."""
+    families = defaultdict(set)
+    for pid, links in family_links.items():
+        for link in links:
+            families[link[0]].add((pid, link[1]))
+
+    dd = get_direct_antecedents(focus_person_id, family_links, families)
+    dd = sorted(list(dd), key=lambda val: val[0])
+
+    antecedents = defaultdict(list)
+    for desc in dd:
+        antecedents[desc[1]].append(desc[0])
+    return antecedents
+
+
 def generate_json(cursor, source_file=None):
     last_updated = get_last_updated_date(cursor)
     metadata = {
@@ -300,6 +338,15 @@ def generate_json(cursor, source_file=None):
     links = get_all_family_links(cursor)
     people_ids = get_persons_in_family_links(links)
     family_ids = get_families_in_family_links(links)
+    # get direct antecedents for a specific person
+    focus_person_id = 1
+    antecedents = get_antecedents(focus_person_id, links)
+
+    print(f'Saving data/antecedents_{focus_person_id}.json for {len(antecedents)} ids...')
+    with open(f'data/antecedents_{focus_person_id}.json', 'w') as outfile:
+        links["metadata"] = metadata
+        json.dump(links, outfile)
+    exit()
 
     with open('data/family-links.json', 'w') as outfile:
         links["metadata"] = metadata

@@ -50,7 +50,7 @@ Handlebars.registerHelper('age', function (value) {
 
 
 const personTemplate = Handlebars.compile(`
-<h2>{{person.firstName}} {{person.lastName}} [{{person.personId}}]</h2>
+<h2 id="full-name">{{person.firstName}} {{person.lastName}} [{{person.personId}}]</h2>
 <ul id="person-facts">
     <li>Gender: {{gender person.gender}}</li>
 </ul>

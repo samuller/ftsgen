@@ -173,6 +173,13 @@ function loadFamilyTree(personId) {
     readJsonFile(divJsonFilenameFromId("json/people/people", personId, personJsonDivSize), function(response) {
         processPersonData(personId, personDiv, response);
         personDiv.classList.remove('loading');
+        readJsonFile("json/antecedents.json", function(response) {
+            const jsonData = JSON.parse(response);
+            if (!(personId in jsonData)) { return; }
+            // add generation indicator to name
+            const nameEl = document.getElementById('full-name');
+            nameEl.innerHTML = nameEl.innerHTML.replace("]", `-g${jsonData[personId].join()}]`)
+        });
     }, function(response) {
         personDiv.innerHTML = `Unknown person: ${personId}`;
         personDiv.classList.remove('loading');

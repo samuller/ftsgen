@@ -296,11 +296,6 @@ def get_direct_antecedents(person_id, family_links: Dict[int, List], families: D
         return set()
     # get parents of family
     parents = {(depth, pid) for pid, role in families[parent_family_ids[0]] if not "child" in role}
-    # parents = set()
-    # for pid, links in family_links.items():
-    #     links = [link for link in links if link[0] == parent_family_ids[0] and not "child" in link[1]]
-    #     if len(links) > 0:
-    #         parents.add(pid)
 
     # recurse to get further antecedents
     grand_parents = set()

@@ -270,3 +270,13 @@ window.addEventListener('DOMContentLoaded', main, false);
 window.addEventListener('hashchange',() => {
     loadFromURL();
 });
+
+/**
+ * Add "click-away handler" to hide menu when clicking elsewhere on page.
+ */
+window.onclick = function(event) {
+    // anywhere except menu button itself (even clicking options within menu will then hide menu)
+    if (!event.target.matches('#menu-icon')) {
+        document.getElementById("menu-list").classList.remove("show");
+    }
+} 

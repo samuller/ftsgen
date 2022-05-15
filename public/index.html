@@ -25,11 +25,22 @@
   <script defer type="text/javascript" src="main.js"></script>
 </head>
 <body>
-<header class="hidden"> 
+<header class="hide"> 
     <!-- <label for="quick-person">Person:</label> -->
-    <select id="jump-to-person" placeholder="Jump to person">
-        <option value="">Jump to person</option>
-    </select>
+    <div class="flex1">
+        <select id="jump-to-person" placeholder="Jump to person">
+            <option value="">Jump to person</option>
+        </select>
+    </div>
+    <div id="menu">
+        <div id="menu-icon"></div>
+        <div id="menu-list" class="hide">
+            <li>
+                <input type="checkbox" onclick="toggleTrees(this)" autocomplete="off" id="draw-tree" name="draw-tree" value="draw-tree">
+                <label for="draw-tree">Draw trees (experimental)</label>
+            </li>
+        </div>
+    </div>
 </header>
 
 <div id="contents">

@@ -6,6 +6,8 @@ const familyJsonDivSize = 100;
 const personJsonDivSize = 1000;
 const factsJsonDivSize = 1000;
 
+window.drawFamilyTree = false;
+
 
 /**
  * Fetches a JSON file and passes it to the callback function.
@@ -187,7 +189,7 @@ function loadFamilyTree(personId) {
 
     relativesDiv.classList.add('loading');
     readJsonFile("json/family-links.json", function(response) {
-        processFamilyLinks(personId, relativesDiv, response);
+        processFamilyLinks(personId, relativesDiv, response, !window.drawFamilyTree);
         relativesDiv.classList.remove('loading');
     });
 }
@@ -215,12 +217,38 @@ function loadQuickJump() {
             }
         });
         const header = document.getElementsByTagName("header")[0];
-        header.classList.remove("hidden");
+        header.classList.remove("hide");
     });
 }
 
 
+/**
+ * Reload the whole page based on the URL.
+ */
+function loadFromURL() {
+    loadFamilyTree(window.location.hash.substring(1));
+}
+
+
+function toggleTrees(event) {
+    window.drawFamilyTree = event.checked;
+    loadFromURL();
+}
+
+
+function activateMenu() {
+    const elem = document.getElementById("menu-icon");
+    elem.onclick = function() {
+        document.getElementById("menu-list").classList.toggle("show");
+    };
+}
+
+
+/**
+ * Initial setup code that only loads once.
+ */
 function main() {
+    activateMenu();
     loadQuickJump();
 
     if (window.location.hash.length == 0) {
@@ -228,7 +256,7 @@ function main() {
         window.location.hash = '#19';
     } else {
         // Perform initial load since it isn't triggered by URL change
-        loadFamilyTree(window.location.hash.substring(1));
+        loadFromURL();
     }
 }
 
@@ -240,5 +268,5 @@ window.addEventListener('DOMContentLoaded', main, false);
 
 // Detect changes in URL hash and reload family tree data 
 window.addEventListener('hashchange',() => {
-    loadFamilyTree(window.location.hash.substring(1));
+    loadFromURL();
 });

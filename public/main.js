@@ -237,11 +237,11 @@ function toggleTrees(event) {
 
 
 function activateMenu() {
-    const elem = document.getElementById("menu-button");
-    elem.onclick = function() {
+    const openMenu = function() {
         document.getElementById("menu-icon").classList.toggle("is-selected");
         document.getElementById("menu-list").classList.toggle("show");
     };
+    document.getElementById("menu-button").onclick = openMenu;
 }
 
 
@@ -277,7 +277,7 @@ window.addEventListener('hashchange',() => {
  */
 window.onclick = function(event) {
     // anywhere except menu button itself (even clicking options within menu will then hide menu)
-    if (!event.target.matches('#menu-button')) {
+    if (!event.target.matches('#menu-button') && !event.target.matches('#menu-icon')) {
         document.getElementById("menu-icon").classList.remove("is-selected");
         document.getElementById("menu-list").classList.remove("show");
     }

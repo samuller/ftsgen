@@ -341,8 +341,8 @@ def generate_json(cursor, source_file=None):
 
     print(f'Saving data/antecedents_{focus_person_id}.json for {len(antecedents)} ids...')
     with open(f'data/antecedents_{focus_person_id}.json', 'w') as outfile:
-        links["metadata"] = metadata
-        json.dump(links, outfile)
+        antecedents["metadata"] = metadata
+        json.dump(antecedents, outfile)
 
     print(f'Saving data/family-links.json for {len(links)} ids...')
     with open('data/family-links.json', 'w') as outfile:

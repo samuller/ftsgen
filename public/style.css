@@ -38,17 +38,65 @@ header {
     display: inline-block;
 }
 
-#menu-icon::before {
-    content: "\2261";
-    font-family: Arial, sans-serif;
-    font-size: 30px;
-    font-style: italic;
-    margin: 0 8px;
-    cursor: pointer;
+#menu-button {
+    /* stretch to contain icon */
+    height: 100%;
 }
 
-#menu-icon:hover, #menu-icon:focus{
+#menu-button:hover, #menu-button:focus{
     background-color: lightgrey;
+}
+
+/**
+ * Create crazy hamburger menu icon with animation.
+ */
+#menu-icon {
+    margin: 0 8px;
+
+    position: relative;
+    top: 16px;
+    box-sizing: border-box;
+}
+
+#menu-icon, #menu-icon::before, #menu-icon::after {
+    width: 16px;
+    height: 2px;
+    background-color: black;
+
+    transition: top, transform;
+    transition-duration: .1s;
+    transition-timing-function: ease-in-out;
+}
+
+#menu-icon::before {
+    position: absolute;
+    content: '';
+    left: 0;
+    top: -5px;
+}
+
+#menu-icon::after {
+    position: absolute;
+    content: '';
+    left: 0;
+    top: 5px;
+}
+
+/* Create "X" while menu is open. */
+#menu-icon.is-selected {
+    visibility: hidden;
+}
+
+#menu-icon.is-selected::before {
+    top: 0;
+    transform: rotate(45deg);
+    visibility: visible;
+}
+
+#menu-icon.is-selected::after {
+    top: 0;
+    transform: rotate(-45deg);
+    visibility: visible;
 }
 
 #menu-list {

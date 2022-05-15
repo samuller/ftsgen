@@ -16,6 +16,7 @@ import functools
 import sqlite3 as sql
 from datetime import datetime
 from collections import defaultdict
+from typing import Any, Dict, List, Set
 
 import click
 
@@ -144,7 +145,7 @@ def get_person_family_links(cursor, person_id):
     return family_links
 
 
-def get_all_family_links(cursor):
+def get_all_family_links(cursor) -> Dict[int, List[Any]]:
     """Get family links for everyone in database."""
     cursor.execute(QRY_ALL_PERSON_IDS)
     result = cursor.fetchall()
@@ -155,12 +156,12 @@ def get_all_family_links(cursor):
     return family_links
 
 
-def get_persons_in_family_links(family_links):
+def get_persons_in_family_links(family_links) -> List[int]:
     """Extract all person ids used in family links object."""
     return list(family_links.keys())
 
 
-def get_families_in_family_links(family_links):
+def get_families_in_family_links(family_links) -> Set[int]:
     """Extract all family ids used in family links object."""
     all_families = set()
     for _, families in family_links.items():
@@ -335,6 +336,7 @@ def generate_json(cursor, source_file=None):
     }
     print("Metadata:", metadata)
 
+    print("Extracting family-link data...")
     links = get_all_family_links(cursor)
     people_ids = get_persons_in_family_links(links)
     family_ids = get_families_in_family_links(links)
@@ -346,8 +348,8 @@ def generate_json(cursor, source_file=None):
     with open(f'data/antecedents_{focus_person_id}.json', 'w') as outfile:
         links["metadata"] = metadata
         json.dump(links, outfile)
-    exit()
 
+    print(f'Saving data/family-links.json for {len(links)} ids...')
     with open('data/family-links.json', 'w') as outfile:
         links["metadata"] = metadata
         json.dump(links, outfile)

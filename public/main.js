@@ -55,15 +55,21 @@ function loadRelativeData(familyLinks) {
         const familyId = link[0];
         const roleType = link[1];
         const familyType = isChild(roleType) ? 'ischild' : 'isparent';
-        const req = readJsonFile(divJsonFilenameFromId("json/families/families", familyId, familyJsonDivSize));
+        const jsonFilename = divJsonFilenameFromId("json/families/families", familyId, familyJsonDivSize);
+        const req = readJsonFile(jsonFilename);
         if (req.status == 200) {
             const jsonData = JSON.parse(req.response);
             const familyData = jsonData[familyId];
+            if (familyData === undefined) {
+                console.log(`Family #${familyId} not found in ${jsonFilename}!`)
+            }
             if (relativeData.hasOwnProperty(familyType)) {
                 relativeData[familyType].push(familyData)
             } else {
                 relativeData[familyType] = [familyData];
             }
+        } else {
+            console.log(`Unknown family #${familyId}`)
         }
     });
     // sort parent with husband first (without affecting child order?)

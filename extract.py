@@ -251,11 +251,11 @@ def split_dict_by_ids(data_dict, divs=1000):
     # id ranges that smaller dict will contain (end value is non-inclusive)
     range = [0, divs]
     for id in sorted(data_dict.keys()):
-        mini_dict[id] = data_dict[id]
-        if int(id) >= range[1]-1:
+        if int(id) >= range[1]:
             yield range, mini_dict
             mini_dict = {}
             range = [range[1], range[1] + divs]
+        mini_dict[id] = data_dict[id]
 
 
 def generate_split_json(filename_prefix, id_list, get_data_func, div_size, metadata=None):
@@ -282,6 +282,7 @@ def generate_split_json(filename_prefix, id_list, get_data_func, div_size, metad
 
     for rng, split_data_dict in split_dict_by_ids(data_dict, divs=div_size):
         rng_str = f"{rng[0]}-{rng[1]}"
+        # print(rng_str, min(split_data_dict.keys()), max(split_data_dict.keys()))
         split_data_dict["metadata"] = metadata
         with open(f'{filename_prefix}{rng_str}.json', 'w') as outfile:
             json.dump(split_data_dict, outfile)

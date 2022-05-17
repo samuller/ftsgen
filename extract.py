@@ -28,35 +28,6 @@ person_json_div_size = 1000
 fact_json_div_size = 1000
 
 
-def get_person_data(cursor, person_id):
-    """Fetch details for a single person."""
-    cursor.execute(QRY_PERSON_DETAILS, (person_id,))
-    row = cursor.fetchone()
-    row = list(row)
-    row[2] = choose_lang_longest(row[2])
-    row[3] = choose_lang_longest(row[3])
-    row[5] = sorted_date_to_iso_8601(choose_date_longest_valid(row[5]))
-    row[6] = sorted_date_to_iso_8601(choose_date_longest_valid(row[6]))
-    row[7] = choose_lang_longest(row[7])
-    row[8] = choose_lang_longest(row[8])
-    obj = row_to_object(row, {
-        'personId': 0,
-        'gender': 1,
-        'firstName': 2,
-        'lastName': 3,
-        'suffix': 4,
-    })
-    obj['facts'] = {
-        'birth': {
-            'date': row[5],
-            'place': row[7],
-        },
-        'death': {
-            'date': row[6],
-            'place': row[8],
-        },
-    }
-    return obj
 
 
 def choose_lang_longest(multi_lang_string):
@@ -94,66 +65,164 @@ def sorted_date_to_iso_8601(sorted_date):
     return None
 
 
-def get_family_data(cursor, family_id):
-    """Get data on family, including family members with enough detail for display."""
-    cursor.execute(QRY_FAMILY_MEMBER_DETAILS, (family_id,))
-    family_members = cursor.fetchall()
-    family_members = [list(mem) for mem in family_members]
-    for member in family_members:
-        member[1] = individual_role_type[member[1]]
-        member[2] = choose_lang_longest(member[2])
-        member[3] = choose_lang_longest(member[3])
-    for idx in range(len(family_members)):
-        family_members[idx] = row_to_object(family_members[idx], {
+class FTBDB:
+    
+    def __init__(self, cursor) -> None:
+        self.cursor = cursor
+
+    def get_person_data(self, person_id):
+        """Fetch details for a single person."""
+        self.cursor.execute(QRY_PERSON_DETAILS, (person_id,))
+        row = self.cursor.fetchone()
+        row = list(row)
+        row[2] = choose_lang_longest(row[2])
+        row[3] = choose_lang_longest(row[3])
+        row[5] = sorted_date_to_iso_8601(choose_date_longest_valid(row[5]))
+        row[6] = sorted_date_to_iso_8601(choose_date_longest_valid(row[6]))
+        row[7] = choose_lang_longest(row[7])
+        row[8] = choose_lang_longest(row[8])
+        obj = row_to_object(row, {
             'personId': 0,
-            'roleType': 1,
+            'gender': 1,
             'firstName': 2,
             'lastName': 3,
-            'gender': 4
+            'suffix': 4,
         })
-    return {
-        'familyId': family_id,
-        'type': None,
-        'date': None,
-        'members': family_members
-    }
+        obj['facts'] = {
+            'birth': {
+                'date': row[5],
+                'place': row[7],
+            },
+            'death': {
+                'date': row[6],
+                'place': row[8],
+            },
+        }
+        return obj
 
 
-def get_person_family_links(cursor, person_id):
-    """Get person's family links.
+    def get_family_data(self, family_id):
+        """Get data on family, including family members with enough detail for display."""
+        self.cursor.execute(QRY_FAMILY_MEMBER_DETAILS, (family_id,))
+        family_members = self.cursor.fetchall()
+        family_members = [list(mem) for mem in family_members]
+        for member in family_members:
+            member[1] = individual_role_type[member[1]]
+            member[2] = choose_lang_longest(member[2])
+            member[3] = choose_lang_longest(member[3])
+        for idx in range(len(family_members)):
+            family_members[idx] = row_to_object(family_members[idx], {
+                'personId': 0,
+                'roleType': 1,
+                'firstName': 2,
+                'lastName': 3,
+                'gender': 4
+            })
+        return {
+            'familyId': family_id,
+            'type': None,
+            'date': None,
+            'members': family_members
+        }
 
-    Parameters
-    ----------
-    cursor
-        Cursor to an open database connection.
-    person_id
-        Id of person whose family links should be retrieved.
 
-    Returns
-    -------
-    A list of rows containing [family_id, role_in_family, family_type] where:
-    - `role_in_family` is an `individual_role_type`
-    - `family_type` is either 'parent' or 'child' depending on their role in the family
-    """
-    cursor.execute(QRY_PERSON_FAMILY_IDS, (person_id,))
-    result = cursor.fetchall()
-    family_links = []
-    for row in result:
-        row = list(row)
-        row[1] = individual_role_type[row[1]]
-        family_links.append(row)
-    return family_links
+    def _get_person_family_links(self, person_id):
+        """Get person's family links.
+
+        Parameters
+        ----------
+        cursor
+            Cursor to an open database connection.
+        person_id
+            Id of person whose family links should be retrieved.
+
+        Returns
+        -------
+        A list of rows containing [family_id, role_in_family, family_type] where:
+        - `role_in_family` is an `individual_role_type`
+        - `family_type` is either 'parent' or 'child' depending on their role in the family
+        """
+        self.cursor.execute(QRY_PERSON_FAMILY_IDS, (person_id,))
+        result = self.cursor.fetchall()
+        family_links = []
+        for row in result:
+            row = list(row)
+            row[1] = individual_role_type[row[1]]
+            family_links.append(row)
+        return family_links
 
 
-def get_all_family_links(cursor) -> Dict[int, List[Any]]:
-    """Get family links for everyone in database."""
-    cursor.execute(QRY_ALL_PERSON_IDS)
-    result = cursor.fetchall()
-    all_person_ids = [row[0] for row in result]
-    family_links = {}
-    for person_id in all_person_ids:
-        family_links[person_id] = get_person_family_links(cursor, person_id)
-    return family_links
+    def get_all_family_links(self) -> Dict[int, List[Any]]:
+        """Get family links for everyone in database."""
+        self.cursor.execute(QRY_ALL_PERSON_IDS)
+        result = self.cursor.fetchall()
+        all_person_ids = [row[0] for row in result]
+        family_links = {}
+        for person_id in all_person_ids:
+            family_links[person_id] = self._get_person_family_links(person_id)
+        return family_links
+
+
+    def get_facts(self, person_ids):
+        self.cursor.execute(QRY_ALL_FACTS, [])
+        result = self.cursor.fetchall()
+        facts = defaultdict(list)
+        for row in result:
+            if row[0] not in person_ids:
+                continue
+            row = list(row)
+            if row[2] in fact_type:
+                row[2] = fact_type[row[2]]
+            row[4] = sorted_date_to_iso_8601(str(row[4]))
+            # override description with cause_of_death
+            if not row[4] and row[2] == 'DEAT':
+                row[4] = row[7]
+            row[5] = choose_lang_longest(row[5])
+            row[6] = choose_lang_longest(row[6])
+            obj = row_to_object(row, {
+                # 'personId': 0,
+                'factId': 1,
+                'type': 2,
+                'subType': 3,
+                'date': 4,
+                'description': 5,
+                'place': 6
+            })
+            # lack of all this data is likely a mistaken entry?
+            if [row[3], row[4], row[5]] == ['', None, '']:
+                continue
+            facts[row[0]].append(obj)
+        return facts
+
+
+    def get_last_updated_date(self):
+        self.cursor.execute(QRY_LAST_UPDATED, [])
+        last_updated_timestamp = self.cursor.fetchone()[0]
+        return datetime.utcfromtimestamp(last_updated_timestamp)
+
+
+    def _list_all_people(self):
+        self.cursor.execute(EXP_QRY_ALL_PEOPLE, [])
+        result = self.cursor.fetchall()
+        for row in result:
+            # id, gender, name, surname, suffix, alive, privacy = tuple(row)
+            print(row)
+
+
+    def _list_person(self, person_id):
+        self.cursor.execute(EXP_QRY_PERSON_DETAIL, (person_id,))
+        print(self.cursor.fetchone())
+
+
+    def _detail_person(self, person_id):
+        print('Person')
+        self._list_person(person_id)
+
+        print('Person: facts')
+        self.cursor.execute(EXP_QRY_PERSON_FACTS, (person_id,))
+        result = self.cursor.fetchall()
+        for row in result:
+            print(row)
 
 
 def get_persons_in_family_links(family_links) -> List[int]:
@@ -168,68 +237,6 @@ def get_families_in_family_links(family_links) -> Set[int]:
         for family in families:
             all_families.add(family[0])
     return all_families
-
-
-def get_facts(cursor, person_ids):
-    cursor.execute(QRY_ALL_FACTS, [])
-    result = cursor.fetchall()
-    facts = defaultdict(list)
-    for row in result:
-        if row[0] not in person_ids:
-            continue
-        row = list(row)
-        if row[2] in fact_type:
-            row[2] = fact_type[row[2]]
-        row[4] = sorted_date_to_iso_8601(str(row[4]))
-        # override description with cause_of_death
-        if not row[4] and row[2] == 'DEAT':
-            row[4] = row[7]
-        row[5] = choose_lang_longest(row[5])
-        row[6] = choose_lang_longest(row[6])
-        obj = row_to_object(row, {
-            # 'personId': 0,
-            'factId': 1,
-            'type': 2,
-            'subType': 3,
-            'date': 4,
-            'description': 5,
-            'place': 6
-        })
-        # lack of all this data is likely a mistaken entry?
-        if [row[3], row[4], row[5]] == ['', None, '']:
-            continue
-        facts[row[0]].append(obj)
-    return facts
-
-
-def get_last_updated_date(cursor):
-    cursor.execute(QRY_LAST_UPDATED, [])
-    last_updated_timestamp = cursor.fetchone()[0]
-    return datetime.utcfromtimestamp(last_updated_timestamp)
-
-
-def list_all_people(cursor):
-    cursor.execute(EXP_QRY_ALL_PEOPLE, [])
-    result = cursor.fetchall()
-    for row in result:
-        # id, gender, name, surname, suffix, alive, privacy = tuple(row)
-        print(row)
-
-
-def list_person(cursor, person_id):
-    cursor.execute(EXP_QRY_PERSON_DETAIL, (person_id,))
-    print(cursor.fetchone())
-
-
-def detail_person(cursor, person_id):
-    print('Person')
-    list_person(cursor, person_id)
-
-    print('Person: facts')
-    cursor.execute(EXP_QRY_PERSON_FACTS, (person_id,))
-    result = cursor.fetchall()
-    for row in result:
-        print(row)
 
 
 def split_dict_by_ids(data_dict, divs=1000):
@@ -324,7 +331,9 @@ def get_antecedents(focus_person_id, family_links) -> Dict[int, List[int]]:
 
 
 def generate_json(cursor, source_file=None):
-    last_updated = get_last_updated_date(cursor)
+    db = FTBDB(cursor)
+
+    last_updated = db.get_last_updated_date()
     metadata = {
         "generated_at": datetime.now().replace(microsecond=0).isoformat(),
         # "source": source_file
@@ -333,7 +342,7 @@ def generate_json(cursor, source_file=None):
     print("Metadata:", metadata)
 
     print("Extracting family-link data...")
-    links = get_all_family_links(cursor)
+    links = db.get_all_family_links()
     people_ids = get_persons_in_family_links(links)
     family_ids = get_families_in_family_links(links)
     # get direct antecedents for a specific person
@@ -351,7 +360,7 @@ def generate_json(cursor, source_file=None):
         json.dump(links, outfile)
 
     people_data = generate_split_json('data/people/people-', people_ids,
-        lambda person_id: get_person_data(cursor, person_id),
+        lambda person_id: db.get_person_data(person_id),
         person_json_div_size, metadata
     )
 
@@ -363,11 +372,11 @@ def generate_json(cursor, source_file=None):
         json.dump(person_search, outfile)
 
     family_data = generate_split_json('data/families/families-', family_ids,
-        lambda family_id: get_family_data(cursor, family_id),
+        lambda family_id: db.get_family_data(family_id),
         family_json_div_size, metadata
     )
 
-    facts = get_facts(cursor, people_ids)    
+    facts = db.get_facts(people_ids)    
     facts_data = generate_split_json('data/facts/facts-', sorted(facts.keys()),
         lambda fact_id: facts[fact_id],
         fact_json_div_size, metadata

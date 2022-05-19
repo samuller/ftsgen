@@ -145,6 +145,7 @@ def get_antecedents(focus_person_id: int, family_links: FamilyLinks) -> Dict[int
 def generate_json(cursor: sql.Cursor, source_file: Optional[str] = None) -> None:
     db = FTBDB(cursor)
 
+def generate_json(db: FTBDB, output_dir = 'data', source_file: Optional[str] = None) -> None:
     last_updated = db.get_last_updated_date()
     metadata = {
         "generated_at": datetime.now().replace(microsecond=0).isoformat(),
@@ -161,18 +162,18 @@ def generate_json(cursor: sql.Cursor, source_file: Optional[str] = None) -> None
     focus_person_id = 1
     antecedents = cast(Dict[IDKey, Union[List[int],Any]], get_antecedents(focus_person_id, links))
 
-    print(f'Saving data/antecedents_{focus_person_id}.json for {len(antecedents)} ids...')
-    with open(f'data/antecedents_{focus_person_id}.json', 'w') as outfile:
+    print(f'Saving {output_dir}/antecedents_{focus_person_id}.json for {len(antecedents)} ids...')
+    with open(f'{output_dir}/antecedents_{focus_person_id}.json', 'w') as outfile:
         antecedents["metadata"] = metadata
         json.dump(antecedents, outfile)
 
-    print(f'Saving data/family-links.json for {len(links)} ids...')
-    with open('data/family-links.json', 'w') as outfile:
+    print(f'Saving {output_dir}/family-links.json for {len(links)} ids...')
+    with open(f'{output_dir}/family-links.json', 'w') as outfile:
         # links = cast(IDDict, links)
         links["metadata"] = metadata  # type: ignore
         json.dump(links, outfile)
 
-    people_data = generate_split_json('data/people/people-', people_ids,
+    people_data = generate_split_json(f'{output_dir}/people/people-', people_ids,
         lambda person_id: db.get_person_data(person_id),
         person_json_div_size, metadata
     )
@@ -181,16 +182,16 @@ def generate_json(cursor: sql.Cursor, source_file: Optional[str] = None) -> None
     for person_id, person in people_data.items():
         person_title = f'{person["firstName"]} {person["lastName"]}'
         person_search.append([person_id, person_title])
-    with open(f'data/person-search.json', 'w') as outfile:
+    with open(f'{output_dir}/person-search.json', 'w') as outfile:
         json.dump(person_search, outfile)
 
-    family_data = generate_split_json('data/families/families-', family_ids,
+    family_data = generate_split_json(f'{output_dir}/families/families-', family_ids,
         lambda family_id: db.get_family_data(family_id),
         family_json_div_size, metadata
     )
 
     facts = db.get_facts(people_ids)    
-    facts_data = generate_split_json('data/facts/facts-', sorted(list(facts.keys())),  # type: ignore
+    facts_data = generate_split_json(f'{output_dir}/facts/facts-', sorted(list(facts.keys())),  # type: ignore
         lambda fact_id: facts[str(fact_id)],
         fact_json_div_size, metadata
     )
@@ -215,7 +216,8 @@ def main(ftb_db_path: str, media_path: str) -> None:
     #     media_check_files(cursor, media_path[0])
 
     # print(get_person_data(cursor, 19))
-    generate_json(cursor, os.path.basename(ftb_db_path))
+    db = FTBDB(cursor)
+    generate_json(db, 'data', os.path.basename(ftb_db_path))
 
 
 if __name__ == '__main__':

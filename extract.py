@@ -71,6 +71,7 @@ def split_dict_by_ids(data_dict: IDDict, divs:int = 1000) -> Generator[Tuple[Lis
             mini_dict = {}
             range = [range[1], range[1] + divs]
         mini_dict[id] = data_dict[id]
+    yield range, mini_dict
 
 
 def generate_split_json(

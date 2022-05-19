@@ -1,12 +1,16 @@
 import functools
+from sqlite3 import Cursor
 from datetime import datetime
-from typing import Any, Dict, List
 from collections import defaultdict
+from typing import Any, Dict, List, Optional, Union
 
 from ftb_queries import *
 
 
-def choose_lang_longest(multi_lang_string):
+FamilyLinks = Dict[int, List[Any]]
+
+
+def choose_lang_longest(multi_lang_string: str) -> str:
     """Choose one string from a multi-lang string by preferring the longest string.
     
     Multi-lang strings are just under-score appended to one another."""
@@ -16,7 +20,7 @@ def choose_lang_longest(multi_lang_string):
     return functools.reduce(lambda a, b: a if len(a) >= len(b) else b, multi)
 
 
-def choose_date_longest_valid(multi_fact_date):
+def choose_date_longest_valid(multi_fact_date: str) -> str:
     """Choose the longest valid valid from multiple facts.
     
     Multi-fact dates are just integers (YYYYMMDD) that are under-score appended to one another."""
@@ -27,7 +31,7 @@ def choose_date_longest_valid(multi_fact_date):
     return functools.reduce(lambda a, b: a if len(a) >= len(b) and len(a) <= 8 else b, multi)
 
 
-def sorted_date_to_iso_8601(sorted_date):
+def sorted_date_to_iso_8601(sorted_date: str) -> Optional[str]:
     """Sorted-date's are in YYYYMMDD and we return YYYY-MM-DD format.
     
     Optional parts of sorted_date will contain zeros."""
@@ -43,10 +47,10 @@ def sorted_date_to_iso_8601(sorted_date):
 
 class FTBDB:
     
-    def __init__(self, cursor) -> None:
+    def __init__(self, cursor: Cursor) -> None:
         self.cursor = cursor
 
-    def get_person_data(self, person_id):
+    def get_person_data(self, person_id: int) -> Dict[str, Any]:
         """Fetch details for a single person."""
         self.cursor.execute(QRY_PERSON_DETAILS, (person_id,))
         row = self.cursor.fetchone()
@@ -57,7 +61,7 @@ class FTBDB:
         row[6] = sorted_date_to_iso_8601(choose_date_longest_valid(row[6]))
         row[7] = choose_lang_longest(row[7])
         row[8] = choose_lang_longest(row[8])
-        obj = row_to_object(row, {
+        obj: Dict[str, Any] = row_to_object(row, {
             'personId': 0,
             'gender': 1,
             'firstName': 2,
@@ -77,7 +81,7 @@ class FTBDB:
         return obj
 
 
-    def get_family_data(self, family_id):
+    def get_family_data(self, family_id: int) -> Dict[str, Any]:
         """Get data on family, including family members with enough detail for display."""
         self.cursor.execute(QRY_FAMILY_MEMBER_DETAILS, (family_id,))
         family_members = self.cursor.fetchall()
@@ -102,7 +106,7 @@ class FTBDB:
         }
 
 
-    def _get_person_family_links(self, person_id):
+    def _get_person_family_links(self, person_id: int) -> List[str]:
         """Get person's family links.
 
         Parameters
@@ -128,7 +132,7 @@ class FTBDB:
         return family_links
 
 
-    def get_all_family_links(self) -> Dict[int, List[Any]]:
+    def get_all_family_links(self) -> FamilyLinks:
         """Get family links for everyone in database."""
         self.cursor.execute(QRY_ALL_PERSON_IDS)
         result = self.cursor.fetchall()
@@ -139,10 +143,10 @@ class FTBDB:
         return family_links
 
 
-    def get_facts(self, person_ids):
+    def get_facts(self, person_ids: List[int]) -> Dict[str, List[Dict[str, Any]]]:
         self.cursor.execute(QRY_ALL_FACTS, [])
         result = self.cursor.fetchall()
-        facts = defaultdict(list)
+        facts: Dict[Any, List[Dict[str, Any]]] = defaultdict(list)
         for row in result:
             if row[0] not in person_ids:
                 continue
@@ -171,13 +175,13 @@ class FTBDB:
         return facts
 
 
-    def get_last_updated_date(self):
+    def get_last_updated_date(self) -> datetime:
         self.cursor.execute(QRY_LAST_UPDATED, [])
         last_updated_timestamp = self.cursor.fetchone()[0]
         return datetime.utcfromtimestamp(last_updated_timestamp)
 
 
-    def _list_all_people(self):
+    def _list_all_people(self) -> None:
         self.cursor.execute(EXP_QRY_ALL_PEOPLE, [])
         result = self.cursor.fetchall()
         for row in result:
@@ -185,12 +189,12 @@ class FTBDB:
             print(row)
 
 
-    def _list_person(self, person_id):
+    def _list_person(self, person_id: int) -> None:
         self.cursor.execute(EXP_QRY_PERSON_DETAIL, (person_id,))
         print(self.cursor.fetchone())
 
 
-    def _detail_person(self, person_id):
+    def _detail_person(self, person_id: int) -> None:
         print('Person')
         self._list_person(person_id)
 

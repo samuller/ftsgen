@@ -5,6 +5,9 @@ Constants, queries and parsing functions specific to the FTB file format.
 import os
 import re
 import binascii
+from sqlite3 import Cursor
+from typing import List, Dict, Any
+
 
 # 'foster_child'?
 individual_role_type = ['unk', 'unk', 'husband', 'wife', 'unk', 'natural_child', 'adopted_child']
@@ -255,21 +258,21 @@ WHERE mimd.item_type = 1
 QRY_LAST_UPDATED = """select last_update from individual_main_data order by last_update desc limit 1"""
 
 
-def row_to_object(row, mapping):
+def row_to_object(row: List[str], mapping: Dict[str, int]) -> Dict[str, str]:
     object = {}
     for key, row_idx in mapping.items():
         object[key] = row[row_idx]
     return object
 
 
-def role_is_child(role_type):
+def role_is_child(role_type: int) -> bool:
     # We assume [4, 5, 6] = ['foster_child', 'natural_child', 'adopted_child']
     if role_type in [4, 5, 6]:
         return True
     return False
 
 
-def parse_date(binary_date):
+def parse_date(binary_date: str) -> str:
     date_format = {
         0: "empty",
         # '\n\x01': "unk",
@@ -299,7 +302,9 @@ def parse_date(binary_date):
     date_func_idx = ord(binary_date[1])
     date_func = None if date_func_idx not in date_format else date_format[date_func_idx]
     # "-" for valid and "/" for invalid value? (i.e. doesn't parse)
-    find_datestr_end = re.search("\"[-/]", binary_date).start()
+    match = re.search("\"[-/]", binary_date)
+    assert match is not None
+    find_datestr_end = match.start()
     datestr = binary_date[2:find_datestr_end]
     binary = binary_date[find_datestr_end:]  #.encode('utf8')
 
@@ -366,14 +371,14 @@ def parse_date(binary_date):
     return datestr
 
 
-def media_crc32_from_file(filename, init=0):
+def media_crc32_from_file(filename: str, init:int = 0) -> int:
     # Calculate CRC32 as int. For hex string use: "%08x" % buf
     buf = open(filename,'rb').read()
-    buf = (binascii.crc32(buf, init) & 0xffff_ffff)
-    return buf
+    crc = (binascii.crc32(buf, init) & 0xffff_ffff)
+    return crc
 
 
-def media_check_files(cursor, path):
+def media_check_files(cursor: Cursor, path: str) -> None:
     cursor.execute(QRY_MEDIA, [])
     result = cursor.fetchall()
     count_confirmed = 0

@@ -143,8 +143,6 @@ def get_antecedents(focus_person_id: int, family_links: FamilyLinks) -> Dict[int
 
 
 def generate_json(cursor: sql.Cursor, source_file: Optional[str] = None) -> None:
-    db = FTBDB(cursor)
-
 def generate_json(db: FTBDB, output_dir = 'data', source_file: Optional[str] = None) -> None:
     last_updated = db.get_last_updated_date()
     metadata = {

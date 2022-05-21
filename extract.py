@@ -176,7 +176,7 @@ def generate_json(db: FamilyData, output_dir: str = 'data', source_file: Optiona
     people_ids = get_persons_in_family_links(links)
     family_ids = get_families_in_family_links(links)
     # get direct antecedents for a specific person
-    focus_person_id = 1
+    focus_person_id = '1'
     antecedents = cast(Dict[IDKey, Union[List[int],Any]], get_antecedents(focus_person_id, links))
 
     print(f'Saving {output_dir}/antecedents_{focus_person_id}.json for {len(antecedents)} ids...')

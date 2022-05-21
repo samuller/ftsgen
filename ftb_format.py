@@ -2,12 +2,9 @@ import functools
 from sqlite3 import Cursor
 from datetime import datetime
 from collections import defaultdict
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 from ftb_queries import *
-
-
-FamilyLinks = Dict[int, List[Any]]
 
 
 def choose_lang_longest(multi_lang_string: str) -> str:
@@ -50,7 +47,7 @@ class FTBDB:
     def __init__(self, cursor: Cursor) -> None:
         self.cursor = cursor
 
-    def get_person_data(self, person_id: int) -> Dict[str, Any]:
+    def get_person_data(self, person_id: str) -> Dict[str, Any]:
         """Fetch details for a single person."""
         self.cursor.execute(QRY_PERSON_DETAILS, (person_id,))
         row = self.cursor.fetchone()
@@ -81,7 +78,7 @@ class FTBDB:
         return obj
 
 
-    def get_family_data(self, family_id: int) -> Dict[str, Any]:
+    def get_family_data(self, family_id: str) -> Dict[str, Any]:
         """Get data on family, including family members with enough detail for display."""
         self.cursor.execute(QRY_FAMILY_MEMBER_DETAILS, (family_id,))
         family_members = self.cursor.fetchall()
@@ -106,7 +103,7 @@ class FTBDB:
         }
 
 
-    def _get_person_family_links(self, person_id: int) -> List[str]:
+    def _get_person_family_links(self, person_id: str) -> List[str]:
         """Get person's family links.
 
         Parameters
@@ -132,7 +129,7 @@ class FTBDB:
         return family_links
 
 
-    def get_all_family_links(self) -> FamilyLinks:
+    def get_all_family_links(self) -> Dict[str, List[Any]]:
         """Get family links for everyone in database."""
         self.cursor.execute(QRY_ALL_PERSON_IDS)
         result = self.cursor.fetchall()
@@ -143,7 +140,7 @@ class FTBDB:
         return family_links
 
 
-    def get_facts(self, person_ids: List[int]) -> Dict[str, List[Dict[str, Any]]]:
+    def get_facts(self, person_ids: List[str]) -> Dict[str, List[Dict[str, Any]]]:
         self.cursor.execute(QRY_ALL_FACTS, [])
         result = self.cursor.fetchall()
         facts: Dict[Any, List[Dict[str, Any]]] = defaultdict(list)
@@ -189,12 +186,12 @@ class FTBDB:
             print(row)
 
 
-    def _list_person(self, person_id: int) -> None:
+    def _list_person(self, person_id: str) -> None:
         self.cursor.execute(EXP_QRY_PERSON_DETAIL, (person_id,))
         print(self.cursor.fetchone())
 
 
-    def _detail_person(self, person_id: int) -> None:
+    def _detail_person(self, person_id: str) -> None:
         print('Person')
         self._list_person(person_id)
 

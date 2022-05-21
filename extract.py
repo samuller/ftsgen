@@ -9,6 +9,7 @@
 #
 
 import os
+import re
 import json
 import pathlib
 import os.path
@@ -27,18 +28,36 @@ person_json_div_size = 1000
 fact_json_div_size = 1000
 
 
-IDKey = Union[int, Literal["metadata"]]
+IDKey = Union[str, Literal["metadata"]]
 IDDict = Dict[IDKey, Any]
 JSON = Dict[str, str]
+FamilyLinks = Dict[IDKey, List[Any]]
 
 
+class FamilyData(Protocol):
 
-def get_persons_in_family_links(family_links: FamilyLinks) -> List[int]:
+    def get_person_data(self, person_id: str) -> Dict[str, Any]:
+        pass
+
+    def get_family_data(self, family_id: str) -> Dict[str, Any]:
+        pass
+
+    def get_all_family_links(self) -> Dict[str, List[Any]]:
+        pass
+        
+    def get_facts(self, person_ids: List[str]) -> Dict[str, List[Dict[str, Any]]]:
+        pass
+
+    def get_last_updated_date(self) -> datetime:
+        pass
+
+
+def get_persons_in_family_links(family_links: FamilyLinks) -> List[IDKey]:
     """Extract all person ids used in family links object."""
     return list(family_links.keys())
 
 
-def get_families_in_family_links(family_links: FamilyLinks) -> Set[int]:
+def get_families_in_family_links(family_links: FamilyLinks) -> Set[IDKey]:
     """Extract all family ids used in family links object."""
     all_families = set()
     for _, families in family_links.items():
@@ -66,7 +85,8 @@ def split_dict_by_ids(data_dict: IDDict, divs:int = 1000) -> Generator[Tuple[Lis
     # id ranges that smaller dict will contain (end value is non-inclusive)
     range = [0, divs]
     for id in sorted(data_dict.keys()):
-        if int(id) >= range[1]:
+        num_id = re.sub(r"[A-Za-z]", "", str(id))
+        if int(num_id) >= range[1]:
             yield range, mini_dict
             mini_dict = {}
             range = [range[1], range[1] + divs]
@@ -75,8 +95,8 @@ def split_dict_by_ids(data_dict: IDDict, divs:int = 1000) -> Generator[Tuple[Lis
 
 
 def generate_split_json(
-        filename_prefix: str, id_list: Union[List[int], Set[int]],
-        get_data_func: Callable[[int], Any], div_size: int, metadata: Optional[JSON] = None
+        filename_prefix: str, id_list: Union[List[IDKey], Set[IDKey]],
+        get_data_func: Callable[[IDKey], Any], div_size: int, metadata: Optional[JSON] = None
     ) -> IDDict:
     """Generate a dictionary with ids as keys which is then split and used to generate JSON files.
     
@@ -109,7 +129,7 @@ def generate_split_json(
     return data_dict
 
 
-def get_direct_antecedents(person_id: int, family_links: FamilyLinks, families: Dict[Any, Set[Tuple[int, Any]]], depth:int = 1) -> Set[Tuple[int, int]]:
+def get_direct_antecedents(person_id: str, family_links: FamilyLinks, families: Dict[Any, Set[Tuple[IDKey, Any]]], depth:int = 1) -> Set[Tuple[int, IDKey]]:
     # get "birth" family
     parent_family_ids = [link[0] for link in family_links[person_id] if "child" in link[1]]
     if len(parent_family_ids) != 1:
@@ -118,7 +138,7 @@ def get_direct_antecedents(person_id: int, family_links: FamilyLinks, families: 
     parents = {(depth, pid) for pid, role in families[parent_family_ids[0]] if not "child" in role}
 
     # recurse to get further antecedents
-    grand_parents: Set[Tuple[int, int]] = set()
+    grand_parents: Set[Tuple[int, IDKey]] = set()
     for parent in parents:
         grand_parents = grand_parents.union(get_direct_antecedents(parent[1], family_links, families, depth+1))
 
@@ -126,9 +146,9 @@ def get_direct_antecedents(person_id: int, family_links: FamilyLinks, families: 
     return antecedents
 
 
-def get_antecedents(focus_person_id: int, family_links: FamilyLinks) -> Dict[int, List[int]]:
+def get_antecedents(focus_person_id: str, family_links: FamilyLinks) -> Dict[str, List[int]]:
     """Antecedents are predecessors in a family line (for which the focus person is a descendant)."""
-    families: Dict[Any, Set[Tuple[int, Any]]] = defaultdict(set)
+    families: Dict[Any, Set[Tuple[IDKey, Any]]] = defaultdict(set)
     for pid, links in family_links.items():
         for link in links:
             families[link[0]].add((pid, link[1]))
@@ -142,8 +162,7 @@ def get_antecedents(focus_person_id: int, family_links: FamilyLinks) -> Dict[int
     return antecedents
 
 
-def generate_json(cursor: sql.Cursor, source_file: Optional[str] = None) -> None:
-def generate_json(db: FTBDB, output_dir = 'data', source_file: Optional[str] = None) -> None:
+def generate_json(db: FamilyData, output_dir: str = 'data', source_file: Optional[str] = None) -> None:
     last_updated = db.get_last_updated_date()
     metadata = {
         "generated_at": datetime.now().replace(microsecond=0).isoformat(),
@@ -189,7 +208,7 @@ def generate_json(db: FTBDB, output_dir = 'data', source_file: Optional[str] = N
     )
 
     facts = db.get_facts(people_ids)    
-    facts_data = generate_split_json(f'{output_dir}/facts/facts-', sorted(list(facts.keys())),  # type: ignore
+    facts_data = generate_split_json(f'{output_dir}/facts/facts-', sorted(list(facts.keys())),
         lambda fact_id: facts[str(fact_id)],
         fact_json_div_size, metadata
     )

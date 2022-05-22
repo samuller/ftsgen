@@ -162,7 +162,7 @@ def get_antecedents(focus_person_id: str, family_links: FamilyLinks) -> Dict[str
     return antecedents
 
 
-def generate_json(db: FamilyData, output_dir: str = 'data', source_file: Optional[str] = None) -> None:
+def generate_json(db: FamilyData, output_dir: str = 'data', source_file: Optional[str] = None, focus_person_id = None) -> None:
     last_updated = db.get_last_updated_date()
     metadata = {
         "generated_at": datetime.now().replace(microsecond=0).isoformat(),
@@ -176,13 +176,12 @@ def generate_json(db: FamilyData, output_dir: str = 'data', source_file: Optiona
     people_ids = get_persons_in_family_links(links)
     family_ids = get_families_in_family_links(links)
     # get direct antecedents for a specific person
-    focus_person_id = '1'
-    antecedents = cast(Dict[IDKey, Union[List[int],Any]], get_antecedents(focus_person_id, links))
-
-    print(f'Saving {output_dir}/antecedents_{focus_person_id}.json for {len(antecedents)} ids...')
-    with open(f'{output_dir}/antecedents_{focus_person_id}.json', 'w') as outfile:
-        antecedents["metadata"] = metadata
-        json.dump(antecedents, outfile)
+    if focus_person_id is not None:
+        antecedents = cast(Dict[IDKey, Union[List[int],Any]], get_antecedents(focus_person_id, links))
+        print(f'Saving {output_dir}/antecedents_{focus_person_id}.json for {len(antecedents)} ids...')
+        with open(f'{output_dir}/antecedents_{focus_person_id}.json', 'w') as outfile:
+            antecedents["metadata"] = metadata
+            json.dump(antecedents, outfile)
 
     print(f'Saving {output_dir}/family-links.json for {len(links)} ids...')
     with open(f'{output_dir}/family-links.json', 'w') as outfile:
@@ -233,8 +232,9 @@ def main(ftb_db_path: str, media_path: str) -> None:
     #     media_check_files(cursor, media_path[0])
 
     # print(get_person_data(cursor, 19))
+
     db = FTBDB(cursor)
-    generate_json(db, 'data', os.path.basename(ftb_db_path))
+    generate_json(db, 'data-xml', os.path.basename(ftb_db_path), focus_person_id='1')
 
 
 if __name__ == '__main__':

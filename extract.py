@@ -21,6 +21,7 @@ from typing import Dict, List, Set, Tuple, Any, Generator, Optional, Callable, L
 import click
 
 from ftb_format import *
+from gramps_xml_format import GrampsXML
 
 
 family_json_div_size = 100

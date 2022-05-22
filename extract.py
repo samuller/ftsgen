@@ -163,7 +163,7 @@ def get_antecedents(focus_person_id: str, family_links: FamilyLinks) -> Dict[str
     return antecedents
 
 
-def generate_json(db: FamilyData, output_dir: str = 'data', source_file: Optional[str] = None, focus_person_id = None) -> None:
+def generate_json(db: FamilyData, output_dir: str = 'data', source_file: Optional[str] = None, focus_person_id: Optional[str] = None) -> None:
     last_updated = db.get_last_updated_date()
     metadata = {
         "generated_at": datetime.now().replace(microsecond=0).isoformat(),

@@ -40,4 +40,4 @@ jobs:
       - name: Install dependencies
         run: poetry install
       - name: Check for mypy typing issues
-        run: poetry run mypy --strict extract.py
+        run: poetry run mypy --strict extract.py ftb_format.py ftb_queries.py gramps_xml_format.py

@@ -185,6 +185,7 @@ class GrampsXML:
         facts: Dict[Any, List[Dict[str, Any]]] = defaultdict(list)
         for person_id in person_ids:
             person_el = self.root.find(f"./{{*}}people/{{*}}person[@id='{person_id}']")
+            assert person_el is not None
             events = person_el.findall("./{*}eventref")
             for eventref in events:
                 hlink = eventref.attrib['hlink']

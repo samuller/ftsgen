@@ -1,5 +1,6 @@
 from datetime import datetime
 import xml.etree.ElementTree as ET
+from collections import defaultdict
 from typing import Dict, List, Any, Optional
 
 
@@ -48,7 +49,7 @@ class GrampsXML:
             else:
                 el_dict[self._ntag(child)] = child.attrib
                 if value is not None:
-                    # strings strating with peridd or hypen aren't legal XML tag names
+                    # strings starting with period or hyphen aren't legal XML tag names
                     el_dict[self._ntag(child)]['.value'] = value
         el_dict.update(el.attrib)
         return el_dict
@@ -112,7 +113,7 @@ class GrampsXML:
             event = self._todict(event_el)
             event_date = ''
             if 'dateval' in event:
-                event_date = event['dateval']
+                event_date = event['dateval']['val']
             place = ''
             if 'place' in event:
                 place_hlink = event['place']['hlink']
@@ -181,7 +182,37 @@ class GrampsXML:
         }
 
     def get_facts(self, person_ids: List[str]) -> Dict[str, List[Dict[str, Any]]]:
-        return {}
+        facts: Dict[Any, List[Dict[str, Any]]] = defaultdict(list)
+        for person_id in person_ids:
+            person_el = self.root.find(f"./{{*}}people/{{*}}person[@id='{person_id}']")
+            events = person_el.findall("./{*}eventref")
+            for eventref in events:
+                hlink = eventref.attrib['hlink']
+                event_el = self.root.find(f"./{{*}}events/{{*}}event[@handle='{hlink}']")
+                assert event_el is not None
+                event = self._todict(event_el)
+
+                event_date = ''
+                if 'dateval' in event:
+                    event_date = event['dateval']['val']
+                place = ''
+
+                if 'place' in event:
+                    place_hlink = event['place']['hlink']
+                    place_el = self.root.find(f"./{{*}}places/{{*}}placeobj[@handle='{place_hlink}']")
+                    assert place_el is not None
+                    place = self._todict(place_el)['pname'].get('value', '')
+
+                obj = {
+                    'factId': event['id'],
+                    'type': event['type'].lower(),
+                    'subType': '',
+                    'date': event_date,
+                    'description': event.get('description', ''),
+                    'place': place,
+                }
+                facts[person_id].append(obj)
+        return facts
 
 
 if __name__ == "__main__":

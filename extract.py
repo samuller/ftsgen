@@ -14,14 +14,22 @@ import json
 import pathlib
 import os.path
 import sqlite3 as sql
+from enum import Enum
+from pathlib import Path
 from datetime import datetime
 from collections import defaultdict
 from typing import Dict, List, Set, Tuple, Any, Generator, Optional, Callable, Literal, Union, cast, Protocol
 
 import click
+import typer
 
 from ftb_format import *
-from gramps_xml_format import GrampsXML
+from gramps_xml_format import GrampsXML, load_xml
+
+
+app = typer.Typer(
+    add_completion=False
+)
 
 
 family_json_div_size = 100
@@ -214,29 +222,54 @@ def generate_json(db: FamilyData, output_dir: str = 'data', source_file: Optiona
     )
 
 
-@click.command()
-@click.argument('ftb_db_path', default=None, nargs=1, type=click.Path(exists=True, dir_okay=False))
-@click.argument('media_path', default=None, nargs=-1, type=click.Path(exists=True, file_okay=False))
-def main(ftb_db_path: str, media_path: str) -> None:
-    sqlite_db_uri = pathlib.Path(os.path.realpath(ftb_db_path)).as_uri()
-    # Open database in read-only mode
-    sqlite_db_uri = sqlite_db_uri + '?mode=ro'
-    conn = sql.connect(sqlite_db_uri, uri=True)
-    # Ignore unicode decoding errors
-    conn.text_factory = lambda b: b.decode(errors = 'ignore')
-    cursor = conn.cursor()
-    conn.row_factory = sql.Row
+class FormatType(str, Enum):
+    ftb = "FTB"
+    gxml = "GXML"
 
-    # list_all_people(cursor)
-    # detail_person(cursor, 19) # 16, 9510
-    # if media_path:
-    #     media_check_files(cursor, media_path[0])
 
-    # print(get_person_data(cursor, 19))
+@app.command()
+# @click.argument('data_path', default=None, nargs=1, type=click.Path(exists=True, dir_okay=False))
+def main(
+    data_path: Path = typer.Argument(...,
+        help="File containing family data.",
+        exists=True,
+        file_okay=True,
+        dir_okay=False
+    ),
+    format: FormatType = typer.Option(..., case_sensitive=False),
+    media_path: Optional[Path] = typer.Option(
+        None,
+        help="Directory containing media files.",
+        exists=True,
+        file_okay=False,
+        dir_okay=True
+    )) -> None:
+    """Extract individual, family and fact data to JSON."""
 
-    db = FTBDB(cursor)
-    generate_json(db, 'data-xml', os.path.basename(ftb_db_path), focus_person_id='1')
+    if format == FormatType.ftb:
+        sqlite_db_uri = pathlib.Path(os.path.realpath(data_path)).as_uri()
+        # Open database in read-only mode
+        sqlite_db_uri = sqlite_db_uri + '?mode=ro'
+        conn = sql.connect(sqlite_db_uri, uri=True)
+        # Ignore unicode decoding errors
+        conn.text_factory = lambda b: b.decode(errors = 'ignore')
+        cursor = conn.cursor()
+        conn.row_factory = sql.Row
+
+        # db._list_all_people(cursor)
+        # db._detail_person(cursor, 1)
+        # if media_path:
+        #     media_check_files(cursor, media_path[0])
+        # print(db.get_person_data(cursor, 1))
+
+        db = FTBDB(cursor)
+        generate_json(db, 'data-xml', os.path.basename(data_path), focus_person_id='1')
+
+    if format == FormatType.gxml:
+        root = load_xml(data_path)
+        xml = GrampsXML(root)
+        generate_json(xml, 'var/dxml', os.path.basename(data_path), focus_person_id='I0000')
 
 
 if __name__ == '__main__':
-    main()
+    app()

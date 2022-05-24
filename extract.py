@@ -266,7 +266,7 @@ def main(
         generate_json(db, 'data-xml', os.path.basename(data_path), focus_person_id='1')
 
     if format == FormatType.gxml:
-        root = load_xml(data_path)
+        root = load_xml(str(data_path))
         xml = GrampsXML(root)
         generate_json(xml, 'var/dxml', os.path.basename(data_path), focus_person_id='I0000')
 

@@ -1,7 +1,7 @@
 {
-    "name": "Family - JIMuller",
-    "short_name": "Family-JIM",
-    "description": "Family tree of J.I. Muller.",
+    "name": "Family Tree",
+    "short_name": "Family",
+    "description": "Family tree.",
     "icons": [
       {
         "src": "images/sitemap-192.png",

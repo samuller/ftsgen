@@ -12,7 +12,7 @@ time ./extract.py --format ftb /path/to/data/family-database.ftb
 ```
 
 Test and view website:
-```
+```console
 # move generated files into website directory
 mkdir public/json
 mv generated-data/* public/json/

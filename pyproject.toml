@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "ftb-extract"
+name = "ftsgen"
 version = "1.1.0"
-description = "Extract data from an FTB database to generate a static website"
+description = "Extract data from a family tree database to generate a static website"
 authors = ["Simon Muller <samullers@gmail.com>"]
 readme = "README.md"
 keywords = ["genealogy", "family-tree", "json", "website"]

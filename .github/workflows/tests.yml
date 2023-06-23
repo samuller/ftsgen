@@ -3,6 +3,8 @@ name: tests
 on:
   # Run this workflow every time a new commit is pushed to repo
   push:
+  # Allow workflow to be manually triggered
+  workflow_dispatch:
   # Also run it once weekly to check for impact due to changes in the OS,
   # python, postgres, or any external packages/dependencies
   schedule:
